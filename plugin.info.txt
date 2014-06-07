@@ -1,0 +1,8 @@
+base    mamweb
+author  Tomas Gavenciak
+email   gavento@ucw.cz
+date    2014-06-06
+name    MaM web plugin
+desc    Plugin specific for MaM web [mam.mff.cuni.cz]
+url     http://mam.mff.cuni.cz/
+
