@@ -10,6 +10,8 @@ if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 require_once(DOKU_PLUGIN.'syntax.php');
 require_once(DOKU_INC.'inc/infoutils.php');
 
+define('MAMWEB_UPDATEDIR',DOKU_PLUGIN.'mamweb/db/');
+
 
 class helper_plugin_mamweb extends DokuWiki_Plugin {
 
@@ -41,19 +43,20 @@ class helper_plugin_mamweb extends DokuWiki_Plugin {
 	msg("MaM-DB version found: $ver", 0);
 
 	// Update if newer version available
-	for ($v = $ver+1; $file = sprintf($updatedir.'/update%04d.sql', $i), file_exists($file); $v++) {
+	for ($v = $ver+1; $file = sprintf(MAMWEB_UPDATEDIR.'/update%04d.sql', $v), file_exists($file); $v++) {
+	    msg("MaM DB updating to $v with $file.", 2);
 	    $sql = io_readFile($file, false);
 
 	    $this->dbh->beginTransaction();
 	    $res = $this->dbh->exec($sql);
 	    if ($res === false) {
-		 msg("MaM DB update ($file) failed: ".$this->dbh->rrorInfo(), -1);
+		 msg("MaM DB update ($file) failed: ".var_export($this->dbh->errorInfo(), true), -1);
 		 $this->dbh->rollBack();
 		 return false;
 	    }
 	    $res = $this->dbh->exec("INSERT INTO verze_db VALUES ($v, NOW());");
 	    if ($res === false) {
-		 msg("MaM DB version info update to ver $v failed: ".$this->dbh->rrorInfo());
+		 msg("MaM DB version info update to ver $v failed: ".var_export($this->dbh->errorInfo(), true));
 		 $this->dbh->rollBack();
 		 return false;
 	    }
@@ -69,8 +72,12 @@ class helper_plugin_mamweb extends DokuWiki_Plugin {
      * @return Version of the database schema
      */
     function _getDbVersion() {
-	$res = $this->dbh->query('SELECT verze FROM verze_db LIMIT 1 ORDER BY verze DESC;')->fetch();
-	if ($res == false) 
+	$q = $this->dbh->query('SELECT verze FROM verze_db LIMIT 1 ORDER BY verze DESC;');
+	if ($q === false) {
+	    return 0;
+	}
+	$res = $q->fetch();
+	if ($res === false) 
 	    return 0;
         return $res[0];
     }
