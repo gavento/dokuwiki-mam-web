@@ -30,12 +30,12 @@ class helper_plugin_mamweb extends DokuWiki_Plugin {
 	    try {
 		$dbcon = new PDO($this->getConf('PDO_data_source'));
 	    } catch (Exception $e) {
-                msg('PDO exception: '.$e->$message, -1);
+                msg('PDO exception: '.$e->getMessage(), -1);
 		return false;
 	    }
-	    $this->$dbh = $dbcon;
+	    $this->dbh = $dbcon;
 	}
-        return $this->$dbh;
+        return $this->dbh;
     }
 
 }
