@@ -72,7 +72,7 @@ class helper_plugin_mamweb extends DokuWiki_Plugin {
      * @return Version of the database schema
      */
     function _getDbVersion() {
-	$q = $this->dbh->query('SELECT verze FROM verze_db LIMIT 1 ORDER BY verze DESC;');
+	$q = $this->dbh->query('SELECT verze FROM verze_db ORDER BY verze DESC LIMIT 1;');
 	if ($q === false) {
 	    return 0;
 	}
