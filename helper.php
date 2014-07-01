@@ -40,7 +40,8 @@ class helper_plugin_mamweb extends DokuWiki_Plugin {
 
 	// Check current MaM DB version (if any)
 	$ver = $this->_getDbVersion();
-	msg("MaM-DB version found: $ver", 0);
+	if ($this->getConf('debug_msg')) 
+	  msg("MaM-DB version found: $ver", 0);
 
 	// Update if newer version available
 	for ($v = $ver+1; $file = sprintf(MAMWEB_UPDATEDIR.'/update%04d.sql', $v), file_exists($file); $v++) {
