@@ -1,3 +1,10 @@
+
+
+---- SKOLY ----
+
+-- Zdroj: Aesop import
+-- Mělo by být částečně vytaženo z Aesopa, viz https://ovvp.mff.cuni.cz/wiki/aesop/export-skol.
+
 CREATE TABLE skoly (
     -- interní id v MaM
     id SERIAL PRIMARY KEY,
@@ -24,7 +31,13 @@ CREATE TABLE skoly (
     stat text NOT NULL
 );
 
-CREATE INDEX skoly_id_aesop_idx ON skoly (id_aesop);
+CREATE UNIQUE INDEX skoly_id_aesop_idx ON skoly (id_aesop);
+
+
+
+---- RESITELE ----
+
+-- Zdroj: jen MaMDB
 
 -- možnost 'nikam' je tu pro případ, kdy se řešitel přestěhuje a nedá nám novou
 -- adresu. Prý se stalo.
@@ -80,6 +93,11 @@ CREATE INDEX resitele_username_idx ON resitele (username);
 CREATE INDEX resitele_skola_idx ON resitele (skola);
 
 
+
+---- CISLA ----
+
+-- Zdroj: WD
+
 CREATE TABLE cisla (
     -- interní MaM id
     id SERIAL PRIMARY KEY,
@@ -103,9 +121,24 @@ CREATE TABLE cisla (
 
 
 
+---- PROBLEMY ----
 
+-- Vytváří se pro návrh úlohy, tématu, seriálu, org či řešitelského článku a konfery, i pro už publikovaný obsah.
+--
+-- Problém má několik stavů:
+-- 1. Navržený            - existuje stránka návrhem, inline daty a diskusí (v /org/p/)
+-- 2. Zamítnutý           - nastaveno `smazany`
+-- 3. Publikovaný         - definované `verejne_pageid` a zároveň `verejne_cislo`.
+-- 4. Zveřejněné i řešení - definované `reseni_cislo` (jen ulohy)
+-- 
+-- K tomuto záznamu přísluší dvě wiki stránky - jedna s návrhem, inline daty a diskusí (v /org/p/),
+-- druhá pak s veřejným zadáním a řešením (v /<rocnik>/).
+
+-- Zdroj: [WD] Wiki Data.
 
 CREATE TYPE typ_problemu_enum AS ENUM ('uloha', 'tema', 'serial', 'org-clanek', 'res-clanek');
+
+CREATE TYPE stav_problemu_enum AS ENUM ('navrh', 'verejny', 'smazany');
 
 CREATE TABLE problemy (
     -- interní MaM id
@@ -126,16 +159,18 @@ CREATE TABLE problemy (
     -- [WD] název bez čísla, např 'Poissonova'
     nazev text NOT NULL,
 
-    -- [WD] Příznak smazání z návrhů (bude archivováno)
+    -- [WD] stav problému
     -- Publikované se nikdy nemažou
-    smazany boolean NOT NULL DEFAULT false,
-    CHECK ((NOT smazany) OR ((verejne_pageid IS NULL) AND (verejne_cislo IS NULL))),
+    stav stav_problemu_enum NOT NULL DEFAULT 'navrh',
+    CHECK ((stav = 'smazany' AND (verejne_pageid IS NULL) AND (verejne_cislo IS NULL)) OR
+           (stav = 'navrh') OR
+           (stav = 'verejny' AND (verejne_pageid NOT NULL) AND (verejne_cislo NOT NULL))),
 
     -- [WD] maximální počet bodů za úlohu
     -- v případě tématu, seriálu a článků NULL
     body integer,
 
-    -- [WD] pokud je k úloze/téma tu zveřejněno zadání / řešení, pak:
+    -- [WD] link na stránku se zadáním / řešením:
     verejne_pageid text,
 
     -- [WD] ve kterém čísle se objevilo zadání úlohy (takto se získá její deadline)
@@ -168,23 +203,10 @@ CREATE UNIQUE INDEX problemy_pageid_idx ON problemy (pageid);
 
 CREATE UNIQUE INDEX problemy_verejne_pageid_idx ON problemy (verejne_pageid);
 
-CREATE TYPE stav_problemu_enum AS ENUM ('navrh', 'verejny', 'smazany');
 
--- Funkce pro indikaci stavu problému, používá se jako:
--- SELECT *, p.stav FROM problemy p WHERE ...;
-CREATE FUNCTION stav(problemy)
-  RETURNS stav_problemu_enum STABLE LANGUAGE SQL AS
-$BODY$
-    SELECT CASE WHEN (p.smazany)
-                  THEN 'smazany'::stav_problemu_enum
-                WHEN ((p.verejne_pageid IS NOT NULL) AND (p.verejne_cislo IS NOT NULL))
-                  THEN 'verejny'::stav_problemu_enum
-                ELSE 'navrh'::stav_problemu_enum
-           END
-    FROM   problemy p
-    WHERE  p.id = $1.id;
-$BODY$;
+---- RESENI ----
 
+-- Zdroj: jen MaMDB
 
 CREATE TABLE reseni (
     -- interní MaM id
@@ -215,7 +237,11 @@ CREATE INDEX reseni_problem_idx ON reseni (problem);
 CREATE INDEX reseni_resitel_problem_idx ON reseni (resitel, problem);
 
 
-CREATE TABLE soustredeni ( -- WikiData
+---- SOUSTREDENI ----
+
+-- Zdroj: WD
+
+CREATE TABLE soustredeni (
     -- interní DB id
     id SERIAL PRIMARY KEY,
 
@@ -234,22 +260,26 @@ CREATE TABLE soustredeni ( -- WikiData
 
 CREATE UNIQUE INDEX soustredeni_pageid_idx ON soustredeni (pageid);
 
-CREATE TABLE ucasti (
-    -- relace mezi ucastniky a soustredky
-    soustredeni INTEGER REFERENCES soustredeni,
-    resitel INTEGER REFERENCES resitele,
+-- -- Zdroj: ?
+-- 
+-- CREATE TABLE ucasti (
+--     -- relace mezi ucastniky a soustredky
+--     soustredeni INTEGER REFERENCES soustredeni,
+--     resitel INTEGER REFERENCES resitele,
+-- 
+--     -- volitelne data ucasti
+--     zacatek DATE,
+--     konec DATE,
+-- 
+--     PRIMARY KEY (soustredeni, resitel)
+-- );
+-- 
+-- CREATE INDEX ucasti_soustredeni_idx ON ucasti (soustredeni);
+-- 
+-- CREATE INDEX ucasti_resitel_idx ON ucasti (resitel);
 
-    -- volitelne data ucasti
-    zacatek DATE,
-    konec DATE,
 
-    PRIMARY KEY (soustredeni, resitel)
-);
-
-CREATE INDEX ucasti_soustredeni_idx ON ucasti (soustredeni);
-
-CREATE INDEX ucasti_resitel_idx ON ucasti (resitel);
-
+---- Interní VERZE_DB ----
 
 CREATE TABLE verze_db (
      -- Nejvetsi verze je aktualni
