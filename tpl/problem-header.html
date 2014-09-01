@@ -1,0 +1,35 @@
+<div class='mam-problem-header {% if org_page %} mam-problem-header-org{% endif %}{% if edit %} mam-problem-header-edit{% endif %}'>
+  <h2>{{ p.getNazevTypu() }}{% if p.getKod() %} {{ p.getKod() }}:{% endif %}
+    {{ p.nazev }} {% if p.typ == 'uloha' %}({{ p.body }}b){% endif %}{% if org_page %} [{{ p.stav }}]{% endif %}</h2>
+  {% if org_page %}<div>
+    Vytvořena {{ p.datum_vytvoreni.format('Y-m-d') }} uživatelem {{ p.zadavatel }}, opravuje {{ p.opravovatel |default('nikdo') }}
+  </div>{% endif %}
+
+</div>
+
+
+  {# TODO: zbytky ...
+if ($action == 'show') {
+ptln("<div class=''><h2>
+<h2>Problém jménem "'.$r['nazev'].'" typu '.$r['typ'].'</h2>');
+<table>');
+<tr><th>Vytvořený<td>'.$r['datum_vytvoreni'].' uživatelem <code>'.$r['zadavatel'].'</code></tr>');
+<tr><th>Bodů<td>'.$r['body'].'</tr>');
+<tr><th>Stav<td>'.$r['stav'].'</tr>');
+</table>');
+}
+if ($action == 'edit') {
+<h2>Problém <input type="text" value="'.$r['nazev'].'"></input> typu '.$r['typ'].'</h2>');
+<table>');
+  <tr><th>Vytvořený<td>'.$r['datum_vytvoreni'].' uživatelem <code>'.$r['zadavatel'].'</code></tr>');
+  <tr><th>Bodů<td><input type="text" value="'.$r['body'].'"></input></tr>');
+  <tr><th>Stav<td><select>');
+    <option value="navrh" '.  ($r['stav'] == 'navrh'?  'selected':'').'>navrh</option>');
+    <option value="verejny" '.($r['stav'] == 'verejny'?'selected':'').'>verejny</option>');
+    <option value="smazany" '.($r['stav'] == 'smazany'?'selected':'').'>smazany</option>');
+  </select></tr>');
+</table>');
+}
+#}
+
+

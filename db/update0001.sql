@@ -9,7 +9,8 @@ CREATE TABLE skoly (
     -- interní id v MaM
     id SERIAL PRIMARY KEY,
 
-    -- aesopi ID
+    -- aesopi ID odpovidajici "id-primary", např. "izo:XXX" nebo "aesop:YYY"
+    -- pokud je NULL, pak bude v Aesop exportu "ufo"
     id_aesop text,
 
     -- IZO školy (jen české školy)
@@ -164,7 +165,7 @@ CREATE TABLE problemy (
     stav stav_problemu_enum NOT NULL DEFAULT 'navrh',
     CHECK ((stav = 'smazany' AND (verejne_pageid IS NULL) AND (verejne_cislo IS NULL)) OR
            (stav = 'navrh') OR
-           (stav = 'verejny' AND (verejne_pageid NOT NULL) AND (verejne_cislo NOT NULL))),
+           (stav = 'verejny' AND (verejne_pageid IS NOT NULL) AND (verejne_cislo IS NOT NULL))),
 
     -- [WD] maximální počet bodů za úlohu
     -- v případě tématu, seriálu a článků NULL
