@@ -6,13 +6,17 @@ namespace Entity;
  * @Entity @Table(name="problemy")
  */
 class Problem {
-    /** @Id @Column(type="integer") @GeneratedValue **/
+    /**
+     * @Id
+     * @Column(type="integer", nullable=false, unique=true)
+     * @GeneratedValue
+     **/
     public $id;
 
-    /** @Column(type="string") **/
+    /** @Column(type="string", nullable=false, unique=true) **/
     public $nazev;
 
-    /** @Column(type="string") **/
+    /** @Column(type="string", nullable=false, unique=true) **/
     public $pageid;
 
     /** @Column(type="string") **/
@@ -36,8 +40,34 @@ class Problem {
     /** @Column(type="integer") **/
     public $body;
 
+    /**
+     * @ManyToOne(targetEntity="Entity\Cislo", inversedBy="zadane_problemy")
+     * @JoinColumn(name="prvni_cislo", referencedColumnName="id")
+     **/
+//    public $prvni_cislo;
+
+    /**
+     * @ManyToOne(targetEntity="Entity\Cislo", inversedBy="resene_problemy")
+     * @JoinColumn(name="reseni_cislo", referencedColumnName="id")
+     **/
+//    public $reseni_cislo;
+
     /** @Column(type="date") **/
     public $datum_vytvoreni;
+
+    /**
+     * @ManyToMany(targetEntity="Entity\Tag", inversedBy="problemy")
+     * @JoinTable(name="problemy_tagy")
+     **/
+    public $tagy;
+
+    public function __construct() {
+	//$this->datum_vytvoreni=
+	$this->tags = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+
+
 
     public function getKod() {
     	if ($this->cislo_problemu === null) return null;
