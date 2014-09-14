@@ -14,13 +14,14 @@ require_once(DOKU_INC.'inc/infoutils.php');
 /* composer library autoload */
 require_once(DOKU_PLUGIN.'mamweb/vendor/autoload.php');
 
-define('MAMWEB_UPDATEDIR', __DIR___ . '/db/');
+//define('MAMWEB_UPDATEDIR', __DIR___ . '/db/');
 define('MAMWEB_TPLDIR', __DIR__ . '/tpl/');
-define('MAMWEB_MODELDIR', __DIR__ . '/models/');
+define('MAMWEB_SRCDIR', __DIR__ . '/models/');
 
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\ClassLoader;
+use Doctrine\DBAL\Types\Type;
 
 class helper_plugin_mamweb extends DokuWiki_Plugin {
 
@@ -31,21 +32,12 @@ class helper_plugin_mamweb extends DokuWiki_Plugin {
      */
     function getEntityManager() {
 	if ($this->entityManager === null) {
-	    $isDevMode = true;
-
-	    $this->entityManager = EntityManager::create(
-		array('driver' => 'pdo_pgsql', 'user' => 'mam', 'dbname' => 'mam'),
-		Setup::createAnnotationMetadataConfiguration(array(MAMWEB_MODELDIR), $isDevMode));
-
-	    $loader = new ClassLoader('Entity', MAMWEB_MODELDIR);
-	    $loader->register();
+	    require_once 'doctrine-config.php';
+	    $this->entityManager = getMaMEntityManager();
 	}
 	return $this->entityManager;
     }
 
-    /**
-     * @var Twig templating environment
-     */
     protected $twig = null;
 
     /**
