@@ -22,68 +22,130 @@ class Problem {
      * 
      * @Id @Column(type="integer") @GeneratedValue
      **/
-    public $id;
+    private $id;
 
     /**
      * název bez čísla, např 'Poissonova'
      * 
      * @Column(type="string", nullable=false, unique=true)
      **/
-    public $nazev;
+    private $nazev;
+    public function get_nazev() { return $this->nazev; }
+    public function set_nazev($nazev) { $this->nazev = $nazev; }
 
     /** 
-     * Typ: úloha/téma/...
+     * Typ: uloha/tema/...
      * 
-     * @Column(type="string", nullable=false) TODO: enum
+     * @Column(type="string", nullable=false,
+               columnDefinition="VARCHAR(16) CHECK (typ IN ('uloha', 'tema', 'serial', 'org-clanek', 'res-clanek'))")
      **/
-    public $typ;
+    private $typ;
+    public function get_typ() { return $this->typ; }
+    public function set_typ($typ) { $this->typ = $typ; }
 
     /**
      * Org-stránka úlohy na wiki
      *
      * @Column(type="string", nullable=false, unique=true)
      **/
-    public $pageid;
+    private $pageid;
+    public function get_pageid() { return $this->pageid; }
+    public function set_pageid($pageid) { $this->pageid = $pageid; }
 
     /**
-     * stav problému @Column(type="string") **/
-    public $stav;
-
-    /** @Column(type="string") **/
-    public $verejne_pageid;
-
-    /** @Column(type="string") **/
-    public $zadavatel;
-
-    /** @Column(type="string") **/
-    public $opravovatel;
-
-    /** @Column(type="integer") **/
-    public $cislo_problemu;
-
-    /** @Column(type="integer") **/
-    public $body;
+     * Stav problému, viz popis tabulky
+     *
+     * @Column(type="string",
+               columnDefinition="VARCHAR(6) CHECK (typ IN ('navrh', 'verejny', 'smazany'))"))
+     **/
+    private $stav;
+    public function get_stav() { return $this->stav; }
+    public function set_stav($stav) { $this->stav = $stav; }
 
     /**
+     * link na stránku se zadáním / řešením
+     *
+     * @Column(type="string")
+     **/
+    private $verejne_pageid;
+    public function get_verejne_pageid() { return $this->verejne_pageid; }
+    public function set_verejne_pageid($verejne_pageid) { $this->verejne_pageid = $verejne_pageid; }
+
+    /**
+     * Kdo úlohu zadal - username
+     *
+     * @Column(type="string") 
+     **/
+    private $zadavatel;
+    public function get_zadavatel() { return $this->zadavatel; }
+    public function set_zadavatel($zadavatel) { $this->zadavatel = $zadavatel; }
+
+    /**
+     * Kdo je přiřazen jako opravovatel - username
+     *
+     * @Column(type="string")
+     **/
+    private $opravovatel;
+    public function get_opravovatel() { return $this->opravovatel; }
+    public function set_opravovatel($opravovatel) { $this->opravovatel = $opravovatel; }
+
+    /**
+     * Kód úlohy/tématu v ročníku, např "u2.4" nebo pro "t4", jen pro úlohy a témata
+     *
+     * @Column(type="string")
+     **/
+    private $kod_problemu;
+    public function get_kod_problemu() { return $this->kod_problemu; }
+    public function set_kod_problemu($kod_problemu) { $this->kod_problemu = $kod_problemu; }
+
+    /**
+     * maximální počet bodů za úlohu (jen ulohy)
+     *
+     * @Column(type="integer")
+     **/
+    private $body;
+    public function get_body() { return $this->body; }
+    public function set_body($body) { $this->body = $body; }
+
+    /**
+     * ve kterém čísle se objevilo zadání úlohy (takto se získá její deadline)
+     * nebo první výskyt seriálu, článku, tématu (to ale deadline nemá)
+     *
      * @ManyToOne(targetEntity="Cislo", inversedBy="zadane_problemy")
      * @JoinColumn(name="cislo_zadani", referencedColumnName="id")
      **/
-    public $cislo_zadani;
+    private $cislo_zadani;
+    public function get_cislo_zadani() { return $this->cislo_zadani; }
+    public function set_cislo_zadani($cislo_zadani) { $this->cislo_zadani = $cislo_zadani; }
 
     /**
+     * ve kterém čísle se mají započítat body za úlohu a objevilo se řešení
+     * v případě tématu a jiných NULL
+     *
      * @ManyToOne(targetEntity="Cislo", inversedBy="resene_problemy")
      * @JoinColumn(name="cislo_reseni", referencedColumnName="id")
      **/
-    public $cislo_reseni;
-
-    /** @Column(type="date") **/
-    public $datum_vytvoreni;
+    private $cislo_reseni;
+    public function get_cislo_reseni() { return $this->cislo_reseni; }
+    public function set_cislo_reseni($cislo_reseni) { $this->cislo_reseni = $cislo_reseni; }
 
     /**
+     * Datum vzniku navrhu ulohy
+     *
+     * @Column(type="date")
+     **/
+    private $datum_vytvoreni;
+    public function get_datum_vytvoreni() { return $this->datum_vytvoreni; }
+
+    /**
+     * Tagy - pole tagů, hlavně pro M, F, I, L, ale i jiná klíčová slova
+     *
      * @ManyToMany(targetEntity="Tag", inversedBy="problemy")
      * @JoinTable(name="problemy_tagy")
      **/
-    public $tagy;
+    private $tagy;
+    public function get_tagy() { return $this->tagy; }
+
 
     public function __construct($nazev, $typ, $pageid) {
 	$this->nazev = $nazev;
