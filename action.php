@@ -38,12 +38,10 @@ function kod_problemu($res) {
 class action_plugin_mamweb extends DokuWiki_Action_Plugin {
  
     var $helper = null;
-    var $dbh = null;
     var $twig = null;
 
     public function __construct() {
         $this->helper = plugin_load('helper', 'mamweb');
-	$this->dbh = $this->helper->connect();
 	$this->twig = $this->helper->getTwigEnvironment();
 	$this->em = $this->helper->getEntityManager();
     }
@@ -120,23 +118,4 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
     private function cislo_header($action) {
     }
 
-
-
-
-    /////// Obsolete
-
-    public function query_one($query, $params = array()) {
-	global $ID;
-	$q = $this->dbh->prepare($query);
-	if (! $q) {
-	    msg('Query preparation failed: '.$query);
-	} else {
-	    $r = $q->execute($params + array('ID' => $ID));
-	    if (! $r) {
-	        msg('Query execution failed: '.$query.', params: '.$params);
-	    } else {
-	    	return $q->fetch(PDO::FETCH_ASSOC);
-	    }
-	}
-    }
 }

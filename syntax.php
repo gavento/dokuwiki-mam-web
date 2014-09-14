@@ -10,10 +10,6 @@ require_once(DOKU_PLUGIN.'syntax.php');
 
 class syntax_plugin_mamweb extends DokuWiki_Syntax_Plugin {
 
-    /**
-     * @var helper_plugin_mam - PDO DB handle
-     */
-    var $dbh = null;
     var $mamhelper = null;
 
     /**
@@ -21,8 +17,6 @@ class syntax_plugin_mamweb extends DokuWiki_Syntax_Plugin {
      */
     function syntax_plugin_mamweb(){
         $this->mamhelper = plugin_load('helper', 'mamweb');
-        if(!$this->mamhelper) msg('Loading the mam/databese helper failed.', -1);
-	$this->dbh = $this->mamhelper->connect();
     }
 
     /**
@@ -57,7 +51,6 @@ class syntax_plugin_mamweb extends DokuWiki_Syntax_Plugin {
      * Handle the match - parse the data
      */
     function handle($match, $state, $pos, Doku_Handler &$handler){
-//        if(!$this->dbh) return null;
 
         // get lines
         $lines = explode("\n", $match);
@@ -90,7 +83,6 @@ class syntax_plugin_mamweb extends DokuWiki_Syntax_Plugin {
      */
     function render($format, Doku_Renderer &$renderer, $data) {
         if(is_null($data)) return false;
-#        if(!$this->dbh) return false;
 
         global $ID;
         switch ($format){
