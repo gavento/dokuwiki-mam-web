@@ -91,7 +91,7 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
      */
     private function problem_org_header($action) {
 	if (($action == 'show') || ($action == 'edit')) {
-	    $r = $this->emQuery('SELECT p FROM Entity\Problem p WHERE p.pageid = :ID');
+	    $r = $this->emQuery('SELECT p FROM MaMWeb\Entity\Problem p WHERE p.pageid = :ID');
 	    if ($r) {
 		ptln($this->twigRender('problem-header.html',
 		    array('org_page' => true, 'edit' => ($action == 'edit'), 'p' => $r[0] )));
@@ -104,7 +104,7 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
      */
     private function problem_public_header($action) {
 	if (($action == 'show') || ($action == 'edit')) {
-	    $r = $this->emQuery('SELECT p FROM Entity\Problem p WHERE p.verejne_pageid = :ID');
+	    $r = $this->emQuery('SELECT p FROM MaMWeb\Entity\Problem p WHERE p.verejne_pageid = :ID');
 	    if ($r) {
 		ptln($this->twigRender('problem-header.html',
 		    array('org_page' => false, 'edit' => false, 'p' => $r[0] )));
