@@ -30,7 +30,7 @@ class Resitel {
     /**
      * Username, pokud ma wiki-ucet.
      *
-     * @Column(type="string", unique=true)
+     * @Column(type="string", unique=true, nullable=true)
      **/
     private $username;
     public function get_username() { return $this->username; }
@@ -68,21 +68,21 @@ class Resitel {
     /** Kontakty a detaily, pokud známe **/
 
     /**
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      **/
     private $email;
     public function get_email() { return $this->email; }
     public function set_email($email) { $this->email = $email; }
 
     /**
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      **/
     private $telefon;
     public function get_telefon() { return $this->telefon; }
     public function set_telefon($telefon) { $this->telefon = $telefon; }
 
     /**
-     * @Column(type="date")
+     * @Column(type="date", nullable=true)
      **/
     private $datum_narozeni;
     public function get_datum_narozeni() { return $this->datum_narozeni; }
@@ -93,7 +93,7 @@ class Resitel {
     /**
      * Souhlas se zpracováním osobních údajů
      *
-     * @Column(type="date")
+     * @Column(type="date", nullable=true)
      **/
     private $datum_souhlasu;
     public function get_datum_souhlasu() { return $this->datum_souhlasu; }
@@ -102,7 +102,7 @@ class Resitel {
     /**
      * Souhlas se zasíláním fakultních informací.
      *
-     * @Column(type="date")
+     * @Column(type="date", nullable=true)
      **/
     private $datum_souhlasu_spam;
     public function get_datum_souhlasu_spam() { return $this->datum_souhlasu_spam; }
@@ -121,12 +121,12 @@ class Resitel {
      * Kam zasílat papírové řešení
      *
      * @Column(type="string", nullable=false,
-               columnDefinition="VARCHAR(16) CHECK (zasilat IN ('domu', 'doskoly', 'nikam'))")
+               columnDefinition="VARCHAR(16) CHECK (zasilat IN ('domu', 'do_skoly', 'nikam'))")
      **/
     private $zasilat;
     public function get_zasilat() { return $this->zasilat; }
     public function set_zasilat($zasilat) {
-	assert(in_array($zasilat, ['domu', 'doskoly', 'nikam']));
+	assert(in_array($zasilat, ['domu', 'do_skoly', 'nikam']));
 	$this->zasilat = $zasilat;
     }
 
@@ -159,12 +159,13 @@ class Resitel {
 
 
     public function __construct($jmeno, $prijmeni, $pohlavi_muz, $skola, $rok_maturity) {
-	$this->datum_prihlaseni = new DateTime("now");
+	$this->datum_prihlaseni = new \DateTime("now");
 	$this->set_jmeno($jmeno);
 	$this->set_prijmeni($prijmeni);
 	$this->set_pohlavi_muz($pohlavi_muz);
 	$this->set_skola($skola);
 	$this->set_rok_maturity($rok_maturity);
+	$this->set_zasilat('do_skoly');
     }
 }
 

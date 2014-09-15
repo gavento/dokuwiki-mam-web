@@ -23,17 +23,8 @@ class Tag {
     public function get_nazev() {return $this->nazev; }
     public function set_nazev($nazev) { $this->nazev = $nazev; }
 
-    /**
-     * Problémy s tímto tagem
-     *
-     * @ManyToMany(targetEntity="Problem", mappedBy="tagy") 
-     **/
-    private $problemy;
-    public function get_problemy() {return $this->problemy; }
-
     public function __construct($nazev) {
 	$this->nazev = $nazev;
-	$this->problemy = new \Doctrine\Common\Collections\ArrayCollection();
     }
 }
 

@@ -58,7 +58,7 @@ class Problem {
     /**
      * Stav problému, viz popis tabulky
      *
-     * @Column(type="string",
+     * @Column(type="string", nullable=false,
                columnDefinition="VARCHAR(16) CHECK (stav IN ('navrh', 'verejny', 'smazany'))"))
      **/
     private $stav;
@@ -71,7 +71,7 @@ class Problem {
     /**
      * link na stránku se zadáním / řešením
      *
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      **/
     private $verejne_pageid;
     public function get_verejne_pageid() { return $this->verejne_pageid; }
@@ -80,7 +80,7 @@ class Problem {
     /**
      * Kdo úlohu zadal - username
      *
-     * @Column(type="string") 
+     * @Column(type="string", nullable=true)
      **/
     private $zadavatel;
     public function get_zadavatel() { return $this->zadavatel; }
@@ -89,7 +89,7 @@ class Problem {
     /**
      * Kdo je přiřazen jako opravovatel - username
      *
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      **/
     private $opravovatel;
     public function get_opravovatel() { return $this->opravovatel; }
@@ -98,7 +98,7 @@ class Problem {
     /**
      * Kód úlohy/tématu v ročníku, např "u2.4" nebo pro "t4", jen pro úlohy a témata
      *
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      **/
     private $kod_problemu;
     public function get_kod_problemu() { return $this->kod_problemu; }
@@ -107,7 +107,7 @@ class Problem {
     /**
      * maximální počet bodů za úlohu (jen ulohy)
      *
-     * @Column(type="integer")
+     * @Column(type="integer", nullable=true)
      **/
     private $body;
     public function get_body() { return $this->body; }
@@ -118,7 +118,7 @@ class Problem {
      * nebo první výskyt seriálu, článku, tématu (to ale deadline nemá)
      *
      * @ManyToOne(targetEntity="Cislo", inversedBy="zadane_problemy")
-     * @JoinColumn(name="cislo_zadani", referencedColumnName="id")
+     * @JoinColumn(name="cislo_zadani", referencedColumnName="id", nullable=true)
      **/
     private $cislo_zadani;
     public function get_cislo_zadani() { return $this->cislo_zadani; }
@@ -135,7 +135,7 @@ class Problem {
      * v případě tématu a jiných NULL
      *
      * @ManyToOne(targetEntity="Cislo", inversedBy="resene_problemy")
-     * @JoinColumn(name="cislo_reseni", referencedColumnName="id")
+     * @JoinColumn(name="cislo_reseni", referencedColumnName="id", nullable=true)
      **/
     private $cislo_reseni;
     public function get_cislo_reseni() { return $this->cislo_reseni; }
@@ -150,7 +150,7 @@ class Problem {
     /**
      * Datum vzniku navrhu ulohy
      *
-     * @Column(type="datetimetz")
+     * @Column(type="datetimetz", nullable=false)
      **/
     private $datum_vytvoreni;
     public function get_datum_vytvoreni() { return $this->datum_vytvoreni; }
@@ -158,7 +158,7 @@ class Problem {
     /**
      * Tagy - pole tagů, hlavně pro M, F, I, L, ale i jiná klíčová slova
      *
-     * @ManyToMany(targetEntity="Tag", inversedBy="problemy")
+     * @ManyToMany(targetEntity="Tag")
      * @JoinTable(name="problemy_tagy")
      **/
     private $tagy;
@@ -173,26 +173,28 @@ class Problem {
     );
 
     public function get_nazev_typu() {
-	return $this->nazvy_typu[$this->typ];
+	return $this->nazvy_typu[$this->get_typ()];
     }
 
     public function __construct($nazev, $typ, $pageid) {
 	$this->set_nazev($nazev);
 	$this->set_typ($typ);
 	$this->set_pageid($pageid);
-	$this->datum_vytvoreni = DateTime("now");
-	$this->tags = new \Doctrine\Common\Collections\ArrayCollection();
+	$this->set_stav('navrh');
+	$this->datum_vytvoreni = new \DateTime("now");
+	$this->tagy = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
 
-    public function getKod() {
-    	if ($this->cislo_problemu === null) return null;
+    public function sablona_kod_problemu($cislo) {
 	if ($this->typ == 'uloha') {
-	    $cislo = '?'; // TODO cislo cisla
-            return "u{$cislo}.{$this->cislo_problemu}";
+            return "u{$this->get_cislo_zadani()->get_cislo()}.{$cislo}";
         }
-	return "t{$this->cislo_problemu}";
+	if ($this->typ == 'tema') {
+	    return "t{$cislo}";
+	}
+	return null;
     }
 
 

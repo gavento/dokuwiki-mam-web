@@ -41,7 +41,7 @@ class Cislo {
     /**
      * Číslo se stává veřejným (pro řešitele) ve chvíli, kdy je připraveno k tisku.
      *
-     * @Column(type="boolean", nullable=false, options={"defaul": false})
+     * @Column(type="boolean", nullable=false)
      **/
     private $verejne;
     public function get_verejne() { return $this->verejne; }
@@ -50,7 +50,7 @@ class Cislo {
     /**
      * Datum finalni verze, NULL dokud není vydáno
      *
-     * @Column(type="date")
+     * @Column(type="date", nullable=true)
      **/
     private $datum_vydani;
     public function get_datum_vydani() { return $this->datum_vydani; }
@@ -59,7 +59,7 @@ class Cislo {
     /**
      * Platí pro úlohy zadané v tomto čísle
      * 
-     * @Column(type="datetimetz")
+     * @Column(type="datetimetz", nullable=true)
      **/
     private $datum_deadline;
     public function get_datum_deadline() { return $this->datum_deadline; }
@@ -89,6 +89,7 @@ class Cislo {
     public function __construct($rocnik, $cislo) {
 	$this->set_rocnik($rocnik);
 	$this->set_cislo($cislo);
+	$this->set_verejne(false);
 	$this->zadane_problemy = new \Doctrine\Common\Collections\ArrayCollection();
 	$this->resene_problemy = new \Doctrine\Common\Collections\ArrayCollection();
     }

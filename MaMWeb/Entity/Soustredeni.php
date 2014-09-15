@@ -32,7 +32,7 @@ class Soustredeni {
     /**
      * Stránka soustředka a galerie na Wiki
      *
-     * @Column(type="string", unique=true)
+     * @Column(type="string", unique=true, nullable=true)
      */
     private $pageid;
     public function get_pageid() { return $this->pageid; }
@@ -50,7 +50,7 @@ class Soustredeni {
     /**
      * Název tématu soustředění
      *
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      */
     private $nazev;
     public function get_nazev() { return $this->nazev; }

@@ -16,7 +16,7 @@ class Skola {
 
     /**
      * aesopi ID
-     * @Column(type="string", unique=true)
+     * @Column(type="string", unique=true, nullable=false)
      **/
     private $aesop_id;
     public function get_aesop_id() { return $this->aesop_id; }
@@ -25,7 +25,7 @@ class Skola {
     /**
      * IZO školy (jen české školy)
      *
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      **/
     private $izo;
     public function get_izo() { return $this->izo; }
@@ -44,7 +44,7 @@ class Skola {
      * Zkraceny nazev pro zobrazení ve výsledkovce, volitelné.
      * Není v Aesopovi, musíme vytvářet sami.
      *
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      **/
     private $kratky_nazev;
     public function get_kratky_nazev() { return $this->kratky_nazev; }
@@ -83,6 +83,7 @@ class Skola {
 	$this->set_mesto($mesto);
 	$this->set_psc($psc);
 	$this->set_stat($stat);
+	$this->set_aesop_id("ufo");
     }
 }
 
