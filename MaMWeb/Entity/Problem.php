@@ -41,7 +41,10 @@ class Problem {
      **/
     private $typ;
     public function get_typ() { return $this->typ; }
-    public function set_typ($typ) { $this->typ = $typ; }
+    public function set_typ($typ) {
+	assert(in_array($typ, ['uloha', 'tema', 'serial', 'org-clanek', 'res-clanek']));
+	$this->typ = $typ;
+    }
 
     /**
      * Org-stránka úlohy na wiki
@@ -56,11 +59,14 @@ class Problem {
      * Stav problému, viz popis tabulky
      *
      * @Column(type="string",
-               columnDefinition="VARCHAR(6) CHECK (typ IN ('navrh', 'verejny', 'smazany'))"))
+               columnDefinition="VARCHAR(16) CHECK (stav IN ('navrh', 'verejny', 'smazany'))"))
      **/
     private $stav;
     public function get_stav() { return $this->stav; }
-    public function set_stav($stav) { $this->stav = $stav; }
+    public function set_stav($stav) {
+	assert(in_array($stav, ['navrh', 'verejny', 'smazany']));
+	$this->stav = $stav;
+    }
 
     /**
      * link na stránku se zadáním / řešením
@@ -116,7 +122,13 @@ class Problem {
      **/
     private $cislo_zadani;
     public function get_cislo_zadani() { return $this->cislo_zadani; }
-    public function set_cislo_zadani($cislo_zadani) { $this->cislo_zadani = $cislo_zadani; }
+    public function set_cislo_zadani($cislo_zadani) {
+        if ($this->cislo_zadani !== null) {
+            $this->cislo_zadani->get_zadane_problemy()->remove($this);
+        }
+        $this->cislo_zadani = $cislo_zadani;
+        $this->cislo_zadani->get_zadane_problemy()->add($this);
+    }
 
     /**
      * ve kterém čísle se mají započítat body za úlohu a objevilo se řešení
@@ -127,12 +139,18 @@ class Problem {
      **/
     private $cislo_reseni;
     public function get_cislo_reseni() { return $this->cislo_reseni; }
-    public function set_cislo_reseni($cislo_reseni) { $this->cislo_reseni = $cislo_reseni; }
+    public function set_cislo_reseni($cislo_reseni) {
+        if ($this->cislo_reseni !== null) {
+            $this->cislo_reseni->get_resene_problemy()->remove($this);
+        }
+        $this->cislo_reseni = $cislo_reseni;
+        $this->cislo_reseni->get_resene_problemy()->add($this);
+    }
 
     /**
      * Datum vzniku navrhu ulohy
      *
-     * @Column(type="date")
+     * @Column(type="datetimetz")
      **/
     private $datum_vytvoreni;
     public function get_datum_vytvoreni() { return $this->datum_vytvoreni; }
@@ -146,14 +164,27 @@ class Problem {
     private $tagy;
     public function get_tagy() { return $this->tagy; }
 
+    public $nazvy_typu = array(
+	'uloha' => 'Úloha',
+	'tema' => 'Téma',
+	'serial' => 'Seriál',
+	'org-clanek' => 'Článek',
+	'res-clanek' => 'Článek',
+    );
+
+    public function get_nazev_typu() {
+	return $this->nazvy_typu[$this->typ];
+    }
 
     public function __construct($nazev, $typ, $pageid) {
-	$this->nazev = $nazev;
-	$this->typ = $typ;
-	$this->pageid = $pageid;
+	$this->set_nazev($nazev);
+	$this->set_typ($typ);
+	$this->set_pageid($pageid);
 	$this->datum_vytvoreni = DateTime("now");
 	$this->tags = new \Doctrine\Common\Collections\ArrayCollection();
     }
+
+
 
     public function getKod() {
     	if ($this->cislo_problemu === null) return null;
@@ -164,17 +195,6 @@ class Problem {
 	return "t{$this->cislo_problemu}";
     }
 
-    public $nazvyTypu = array(
-	'uloha' => 'Úloha',
-	'tema' => 'Téma',
-	'serial' => 'Seriál',
-	'org-clanek' => 'Článek',
-	'res-clanek' => 'Článek',
-    );
-
-    public function getNazevTypu() {
-	return $this->nazvyTypu[$this->typ];
-    }
 
 }
 

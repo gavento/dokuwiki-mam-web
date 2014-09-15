@@ -12,16 +12,22 @@ class Cislo {
      * @Id @Column(type="integer") @GeneratedValue
      **/
     private $id;
-    public function get_id() { return $this->id; }
 
     /**
-     * 1..21..
+     * Rocnik cisla
      * 
-     * @Column(type="integer", nullable=false)
+     * @ManyToOne(targetEntity="Rocnik", inversedBy="cisla")
+     * @JoinColumn(name="rocnik", referencedColumnName="id", nullable=false)
      **/
     private $rocnik;
     public function get_rocnik() { return $this->rocnik; }
-    public function set_rocnik($rocnik) { $this->rocnik = $rocnik; }
+    public function set_rocnik($rocnik) {
+	if ($this->rocnik !== null) {
+	    $this->rocnik->get_cisla()->remove($this);
+	}
+	$this->rocnik = $rocnik;
+	$this->rocnik->get_cisla()->add($this);
+    }
 
     /**
      * 1..8, "speciální" vydání (DOD, ...) se nepočítají
@@ -53,7 +59,7 @@ class Cislo {
     /**
      * Platí pro úlohy zadané v tomto čísle
      * 
-     * @Column(type="datetime")
+     * @Column(type="datetimetz")
      **/
     private $datum_deadline;
     public function get_datum_deadline() { return $this->datum_deadline; }
@@ -61,6 +67,7 @@ class Cislo {
 
     /**
      * Pole zadanych problemu. Zavisi na Problem.cislo_zadani
+     * TOTO POLE SE NESMI PŘÍMO MODIFIKOVAT (nastavte položky obsažených entit)
      * 
      * @OneToMany(targetEntity="Problem", mappedBy="cislo_zadani")
      **/
@@ -69,6 +76,7 @@ class Cislo {
 
     /**
      * Pole uloh s resenim v tomto cisle. Zavisi na Problem.cislo_reseni
+     * TOTO POLE SE NESMI PŘÍMO MODIFIKOVAT (nastavte položky obsažených entit)
      * 
      * @OneToMany(targetEntity="Problem", mappedBy="cislo_reseni")
      **/
@@ -79,8 +87,8 @@ class Cislo {
      * Povinne parametry jsou rocnik a cislo.
      **/
     public function __construct($rocnik, $cislo) {
-	$this->rocnik = $rocnik;
-	$this->cislo = $cislo;
+	$this->set_rocnik($rocnik);
+	$this->set_cislo($cislo);
 	$this->zadane_problemy = new \Doctrine\Common\Collections\ArrayCollection();
 	$this->resene_problemy = new \Doctrine\Common\Collections\ArrayCollection();
     }

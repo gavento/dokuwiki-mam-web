@@ -11,63 +11,82 @@ class Resitel {
      * 
      * @Id @Column(type="integer") @GeneratedValue
      **/
-    public $id;
+    private $id;
 
     /**
      * @Column(type="string", nullable=false)
      **/
-    public $jmeno;
+    private $jmeno;
+    public function get_jmeno() { return $this->jmeno; }
+    public function set_jmeno($jmeno) { $this->jmeno = $jmeno; }
 
     /**
      * @Column(type="string", nullable=false)
      **/
-    public $prijmeni;
+    private $prijmeni;
+    public function get_prijmeni() { return $this->prijmeni; }
+    public function set_prijmeni($prijmeni) { $this->prijmeni = $prijmeni; }
 
     /**
      * Username, pokud ma wiki-ucet.
      *
      * @Column(type="string", unique=true)
      **/
-    public $username;
+    private $username;
+    public function get_username() { return $this->username; }
+    public function set_username($username) { $this->username = $username; }
 
     /**
      * Pohlaví, že ho neznáme se snad nestane (a ušetří to práci při programování) 
      *
      * @Column(type="boolean", nullable=false)
      **/
-    public $pohlavi_muz;
+    private $pohlavi_muz;
+    public function get_pohlavi_muz() { return $this->pohlavi_muz; }
+    public function set_pohlavi_muz($pohlavi_muz) { $this->pohlavi_muz = $pohlavi_muz; }
 
     /**
      * Škola
      *
-     * @ManyToOne(targetEntity="Skola", inversedBy="resitele")
-     * @JoinColumn(name="skola", referencedColumnName="id")
+     * @ManyToOne(targetEntity="Skola")
+     * @JoinColumn(name="skola", referencedColumnName="id", nullable=false)
      **/
-    public $skola;
+    private $skola;
+    public function get_skola() { return $this->skola; }
+    public function set_skola($skola) { $this->skola = $skola; }
+    
 
     /** 
      * Očekávaný rok maturity
      *
      * @Column(type="integer", nullable=false)
      **/
-    public $rok_maturity;
+    private $rok_maturity;
+    public function get_rok_maturity() { return $this->rok_maturity; }
+    public function set_rok_maturity($rok_maturity) { $this->rok_maturity = $rok_maturity; }
 
     /** Kontakty a detaily, pokud známe **/
 
     /**
      * @Column(type="string")
      **/
-    public $email;
+    private $email;
+    public function get_email() { return $this->email; }
+    public function set_email($email) { $this->email = $email; }
 
     /**
      * @Column(type="string")
      **/
-    public $telefon;
+    private $telefon;
+    public function get_telefon() { return $this->telefon; }
+    public function set_telefon($telefon) { $this->telefon = $telefon; }
 
     /**
      * @Column(type="date")
      **/
-    public $datum_narozeni;
+    private $datum_narozeni;
+    public function get_datum_narozeni() { return $this->datum_narozeni; }
+    public function set_datum_narozeni($datum_narozeni) { $this->datum_narozeni = $datum_narozeni; }
 
     /** Souhlasy - NULL dokud nedali souhlas **/
 
@@ -76,50 +95,76 @@ class Resitel {
      *
      * @Column(type="date")
      **/
-    public $datum_souhlasu;
+    private $datum_souhlasu;
+    public function get_datum_souhlasu() { return $this->datum_souhlasu; }
+    public function set_datum_souhlasu($datum_souhlasu) { $this->datum_souhlasu = $datum_souhlasu; }
 
     /**
      * Souhlas se zasíláním fakultních informací.
      *
      * @Column(type="date")
      **/
-    public $datum_souhlasu_spam;
+    private $datum_souhlasu_spam;
+    public function get_datum_souhlasu_spam() { return $this->datum_souhlasu_spam; }
+    public function set_datum_souhlasu_spam($datum_souhlasu_spam) { $this->datum_souhlasu_spam = $datum_souhlasu_spam; }
 
     /**
      * Datul připojení řešitele k MaM
      *
      * @Column(type="date", nullable=false)
      **/
-    public $datum_vytvoreni;
+    private $datum_prihlaseni;
+    public function get_datum_prihlaseni() { return $this->datum_prihlaseni; }
+    public function set_datum_prihlaseni($datum_prihlaseni) { $this->datum_prihlaseni = $datum_prihlaseni; }
 
     /**
      * Kam zasílat papírové řešení
      *
+     * @Column(type="string", nullable=false,
+               columnDefinition="VARCHAR(16) CHECK (zasilat IN ('domu', 'doskoly', 'nikam'))")
      **/
-    // kam_posilat kam_posilat_enum NOT NULL, TODO:enum
+    private $zasilat;
+    public function get_zasilat() { return $this->zasilat; }
+    public function set_zasilat($zasilat) {
+	assert(in_array($zasilat, ['domu', 'doskoly', 'nikam']));
+	$this->zasilat = $zasilat;
+    }
 
     /** Adresa, pokud ji známe. Ulice může být jen číslo **/
 
     /** @Column(type="string", nullable=true) **/
-    public $ulice;
+    private $ulice;
+    public function get_ulice() { return $this->ulice; }
+    public function set_ulice($ulice) { $this->ulice = $ulice; }
     /** @Column(type="string", nullable=true) **/
-    public $mesto;
+    private $mesto;
+    public function get_mesto() { return $this->mesto; }
+    public function set_mesto($mesto) { $this->mesto = $mesto; }
     /** @Column(type="string", nullable=true) **/
-    public $psc;
+    private $psc;
+    public function get_psc() { return $this->psc; }
+    public function set_psc($psc) { $this->psc = $psc; }
 
     /**
      * ISO 3166-1 dvojznakovy kod zeme velkym pismem (CZ, SK)
      * 
      * @Column(type="string", nullable=true)
      **/
-    public $stat;
+    private $stat;
+    public function get_stat() { return $this->stat; }
+    public function set_stat($stat) {
+	assert((strlen($stat) == 2));
+	$this->stat = strtoupper($stat);
+    }
 
 
-
-    public function __construct() {
-	$this->datum_vytvoreni = new DateTime("now");
-	$this->zadane_problemy = new \Doctrine\Common\Collections\ArrayCollection();
-	$this->resene_problemy = new \Doctrine\Common\Collections\ArrayCollection();
+    public function __construct($jmeno, $prijmeni, $pohlavi_muz, $skola, $rok_maturity) {
+	$this->datum_prihlaseni = new DateTime("now");
+	$this->set_jmeno($jmeno);
+	$this->set_prijmeni($prijmeni);
+	$this->set_pohlavi_muz($pohlavi_muz);
+	$this->set_skola($skola);
+	$this->set_rok_maturity($rok_maturity);
     }
 }
 
