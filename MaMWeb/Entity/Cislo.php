@@ -48,6 +48,15 @@ class Cislo {
     public function set_verejne($verejne) { $this->verejne = $verejne; }
 
     /**
+     * Stránka čísla na wiki
+     *
+     * @Column(type="string", nullable=false, unique=true)
+     **/
+    private $pageid;
+    public function get_pageid() { return $this->pageid; }
+    public function set_pageid($pageid) { $this->pageid = $pageid; }
+
+    /**
      * Datum finalni verze, NULL dokud není vydáno
      *
      * @Column(type="date", nullable=true)
@@ -83,12 +92,10 @@ class Cislo {
     private $resene_problemy;
     public function get_resene_problemy() { return $this->resene_problemy; }
 
-    /**
-     * Povinne parametry jsou rocnik a cislo.
-     **/
-    public function __construct($rocnik, $cislo) {
+    public function __construct($rocnik, $cislo, $pageid) {
 	$this->set_rocnik($rocnik);
 	$this->set_cislo($cislo);
+	$this->set_pageid($pageid);
 	$this->set_verejne(false);
 	$this->zadane_problemy = new \Doctrine\Common\Collections\ArrayCollection();
 	$this->resene_problemy = new \Doctrine\Common\Collections\ArrayCollection();

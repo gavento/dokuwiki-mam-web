@@ -100,9 +100,9 @@ class Problem {
      *
      * @Column(type="string", nullable=true)
      **/
-    private $kod_problemu;
-    public function get_kod_problemu() { return $this->kod_problemu; }
-    public function set_kod_problemu($kod_problemu) { $this->kod_problemu = $kod_problemu; }
+    private $kod;
+    public function get_kod() { return $this->kod; }
+    public function set_kod($kod) { $this->kod = $kod; }
 
     /**
      * maximální počet bodů za úlohu (jen ulohy)
@@ -164,6 +164,20 @@ class Problem {
     private $tagy;
     public function get_tagy() { return $this->tagy; }
 
+    /**
+     * Vrátí kód odpovídající typu, když by měl problém pořadní číslo $cislo
+     */
+    public function vytvor_kod($cislo) {
+	if ($this->typ == 'uloha') {
+            return "u{$this->get_cislo_zadani()->get_cislo()}.{$cislo}";
+        }
+	if ($this->typ == 'tema') {
+	    return "t{$cislo}";
+	}
+	return null;
+    }
+
+
     public $nazvy_typu = array(
 	'uloha' => 'Úloha',
 	'tema' => 'Téma',
@@ -185,17 +199,6 @@ class Problem {
 	$this->tagy = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
-
-
-    public function sablona_kod_problemu($cislo) {
-	if ($this->typ == 'uloha') {
-            return "u{$this->get_cislo_zadani()->get_cislo()}.{$cislo}";
-        }
-	if ($this->typ == 'tema') {
-	    return "t{$cislo}";
-	}
-	return null;
-    }
 
 
 }

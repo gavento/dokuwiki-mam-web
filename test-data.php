@@ -4,18 +4,18 @@ require_once 'doctrine-config.php';
 
 $em = getMaMEntityManager();
 
-$r19 = new MaMWeb\Entity\Rocnik(2012);
+$r19 = new MaMWeb\Entity\Rocnik(19, "p:r19:index");
 $em->persist($r19);
-$r20 = new MaMWeb\Entity\Rocnik(2013);
+$r20 = new MaMWeb\Entity\Rocnik(20, "p:r20:index");
 $em->persist($r20);
-$r21 = new MaMWeb\Entity\Rocnik(2014);
+$r21 = new MaMWeb\Entity\Rocnik(21, "p:r21:index");
 $em->persist($r21);
 
-$c201 = new MaMWeb\Entity\Cislo($r20, 1);
+$c201 = new MaMWeb\Entity\Cislo($r20, 1, "p:r20:c1:index");
 $em->persist($c201);
-$c202 = new MaMWeb\Entity\Cislo($r20, 2);
+$c202 = new MaMWeb\Entity\Cislo($r20, 2, "p:r20:c2:index");
 $em->persist($c202);
-$c211 = new MaMWeb\Entity\Cislo($r21, 1);
+$c211 = new MaMWeb\Entity\Cislo($r21, 1, "p:r21:c1:index");
 $em->persist($c211);
 
 $tM = new MaMWeb\Entity\Tag('M');
@@ -48,8 +48,8 @@ $p4->set_cislo_zadani($c201);
 $p4->set_cislo_reseni($c202);
 $p4->set_zadavatel("samo");
 $p4->set_opravovatel("seto");
-$p4->set_kod_problemu($p4->sablona_kod_problemu(1));
-$p4->set_verejne_pageid("p:zadana-matika");
+$p4->set_kod($p4->vytvor_kod(1));
+$p4->set_verejne_pageid("p:r20:u1.1-o-matice:index");
 $p4->set_stav("verejny");
 $p4->get_tagy()->add($tM);
 $p4->get_tagy()->add($tKomb);
@@ -59,8 +59,8 @@ $p5 = new MaMWeb\Entity\Problem("Téma 21 roč.", "tema", "org:p:tema-roc-21");
 $p5->set_cislo_zadani($c211);
 $p5->set_zadavatel("gavento");
 $p5->set_opravovatel("gavento");
-$p5->set_kod_problemu($p5->sablona_kod_problemu(1));
-$p5->set_verejne_pageid("p:zadana-matika");
+$p5->set_kod($p5->vytvor_kod(1));
+$p5->set_verejne_pageid("p:r21:t1-tema-roc-21:index");
 $p5->set_stav("verejny");
 $em->persist($p5);
 
@@ -87,8 +87,14 @@ $a1->set_body(3);
 $em->persist($a1);
 
 $a2 = new MaMWeb\Entity\Reseni($res1, $p5, $c211, 'email');
-$a2->set_pageid('r:zadana-matika-1');
+$a2->set_pageid('p:r20:u1.1-o-matice:reseni-jan-kovar');
 $em->persist($a2);
+
+$sous1 = new MaMWeb\Entity\Soustredeni("sous:vidnava-2014:index", "Vidnava",
+    new DateTime("2013-04-22"), new DateTime("2013-04-30"), $r19);
+$sous1->set_nazev("Nyní s legendou!");
+$em->persist($sous1);
+
 
 $em->flush();
 

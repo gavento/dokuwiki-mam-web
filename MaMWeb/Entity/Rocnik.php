@@ -23,6 +23,15 @@ class Rocnik {
     public function set_rocnik($rocnik) { $this->rocnik = $rocnik; }
 
     /**
+     * Stránka ročníku na wiki
+     *
+     * @Column(type="string", nullable=false, unique=true)
+     **/
+    private $pageid;
+    public function get_pageid() { return $this->pageid; }
+    public function set_pageid($pageid) { $this->pageid = $pageid; }
+
+    /**
      * Rok zacatku rocniku. Tedy rocnik 2013/2014 bude mit rok "2013"
      *
      * @Column(type="integer", nullable=false, unique=true)
@@ -56,9 +65,10 @@ class Rocnik {
         return $this->get_prvni_rok() . "/" . ($this->get_prvni_rok() + 1);
     }
 
-    public function __construct($rocnik) {
+    public function __construct($rocnik, $pageid) {
 	$this->set_rocnik($rocnik);
 	$this->set_prvni_rok($rocnik + 1993);
+	$this->set_pageid($pageid);
 	$this->cisla = new \Doctrine\Common\Collections\ArrayCollection();
 	$this->soustredeni = new \Doctrine\Common\Collections\ArrayCollection();
     }
