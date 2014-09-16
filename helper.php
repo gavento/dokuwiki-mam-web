@@ -37,11 +37,18 @@ class helper_plugin_mamweb extends DokuWiki_Plugin {
     /**
      * Initialize and return Twig environment
      */
+
     function getTwigEnvironment() {
 	if ($this->twig == null) {
 	    $loader = new Twig_Loader_Filesystem(MAMWEB_TPLDIR);
 	    $this->twig = new Twig_Environment($loader, 
 		array('strict_variables' => true));
+	    $wikilink_f = new Twig_SimpleFunction('wikilink', function($pageid, $text) {
+		    return html_wikilink($pageid, $text);
+		}, array('is_safe' => array('html')));
+	    $this->twig->addFunction($wikilink_f);
+	    $escape_f = new Twig_SimpleFunction('escape', 'htmlspecialchars', array('is_safe' => array('html')));
+	    $this->twig->addFunction($escape_f);
 	}
 	return $this->twig;
     }
