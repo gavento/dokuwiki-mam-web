@@ -91,6 +91,13 @@ class Reseni {
     private $datum_vytvoreni;
     public function get_datum_vytvoreni() { return $this->datum_vytvoreni; }
 
+    /**
+     * Je objekt (a jeho stránka) viditelný pro ne-orgy?
+     */
+    public function je_verejny() {
+        return true;
+    }
+
     public function __construct($resitel, $problem, $cislo_bodovani, $forma) {
 	$this->datum_vytvoreni = new \DateTime("now");
 	$this->set_resitel($resitel);

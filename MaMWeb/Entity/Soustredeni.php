@@ -74,6 +74,12 @@ class Soustredeni {
     public function get_datum_konce() { return $this->datum_konce; }
     public function set_datum_konce($datum_konce) { $this->datum_konce = $datum_konce; }
 
+    /**
+     * Je objekt (a jeho stránka) viditelný pro ne-orgy?
+     */
+    public function je_verejny() {
+        return true;
+    }
 
     public function __construct($pageid, $misto, $datum_zacatku, $datum_konce, $rocnik) {
 	$this->set_pageid($pageid);

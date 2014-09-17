@@ -12,9 +12,9 @@ require_once(DOKU_INC.'inc/infoutils.php');
 require_once(__DIR__.'/vendor/autoload.php');
 
 /**
- * Return true if named (or current by default) user is in group 'org'
+ * Vrátí true když je daný uživatel (nebo přihlášený) ve skupině 'org'
  */
-function user_is_org($username = null) {
+function user_je_org($username = null) {
     global $auth;
     global $USERINFO;
     if ($username === null) {
@@ -47,39 +47,40 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
     }
 
     /**
-     * Helper pto vykresleni dane sablony
-     * Proda navic nekolik promennych (ID, user_org, ...)
+     * Helper pro vykresleni dane sablony
+     * Proda navic nekolik promennych (ID, user_je_org, ...)
      */
     private function twigRender($tpl, $params=array()) {
 	$common = array(
-	    'user_org' => user_is_org(),
+	    'je_org' => user_je_org(),
 	    'ID' => $ID,
 	);
 	return $this->twig->render($tpl, $common + $params);
     }
 
+
     /**
      * Pokud $query vrátí výsledek, pak vypíše šablonu $tpl s výsledkem jakožto $param_name a
      * dalšími parametry. Při nenalezení nedělá nic.
      */
-    private function hlavicka_test($query, $param_name, $tpl, $tpl_params = array()) {
+    private function hlavicka_test($query, $param_name, $tpl, $tpl_params = array(), & $event=null) {
+        global $ID;
 	$r = $this->emQuery($query);
 	if ($r) {
-	    ptln($this->twigRender($tpl, array($param_name => $r[0]) + $tpl_params));
+	    $obj = $r[0];
+	    ptln($this->twigRender($tpl, array($param_name => $obj) + $tpl_params));
+	    // Pokud nemá stránka obsah, zobraz jen varování (a jen orgovi) či nic
+	    if ((! page_exists($ID)) && ($event !== null) && ($event->data == 'show')) {
+	        ptln($this->twigRender("prazdna-stranka-objektu.html"));
+	        $event->preventDefault();
+	    }
 	}
     }
 
     /**
-     * Register the eventhandlers
+     * Generuj halvičky MaM entit pro aktuální stránku
      */
-    public function register(Doku_Event_Handler $controller) {
-        $controller->register_hook('TPL_ACT_RENDER', 'BEFORE', $this, 'mam_headers', array ());
-    }
- 
-    /**
-     * Show/generate MaM headers if any are appropriate
-     */
-    public function mam_headers(& $event, $param) {
+    public function mam_hlavicky(& $event, $param) {
         $action = $event->data;
 
 	// Obsluhujeme jen 'edit' a 'show'
@@ -88,36 +89,93 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
 	}
 
 	// Pokud nemá user práva k editaci, tak se mu ukáže jen R/O info
+	/*
 	if (($action === 'edit') && (auth_quickaclcheck($ID) < AUTH_EDIT)) {
 	    $action = 'show';
 	}
 	$edit = ($action === 'edit');
+	*/
 
 	// Otestovat a zobrazit případné hlavičky
 
 	// Org stránka problému
 	$this->hlavicka_test('SELECT p FROM MaMWeb\Entity\Problem p WHERE p.pageid = :ID',
-	                     'p', 'hlavicka-problem-org.html', ['edit' => $edit]);
+	                     'p', 'hlavicka-problem-org.html', ['edit' => $edit], $event);
 
 	// Veřejná stránka problému
 	$this->hlavicka_test('SELECT p FROM MaMWeb\Entity\Problem p WHERE p.verejne_pageid = :ID',
-	                     'p', 'hlavicka-problem-verejna.html', ['edit' => $edit]);
+	                     'p', 'hlavicka-problem-verejna.html', ['edit' => $edit], $event);
 
 	// Stránka čísla
 	$this->hlavicka_test('SELECT c FROM MaMWeb\Entity\Cislo c WHERE c.pageid = :ID',
-	                     'c', 'hlavicka-cislo.html', ['edit' => $edit]);
+	                     'c', 'hlavicka-cislo.html', ['edit' => $edit], $event);
 
 	// Stránka ročníku
 	$this->hlavicka_test('SELECT r FROM MaMWeb\Entity\Rocnik r WHERE r.pageid = :ID',
-	                     'r', 'hlavicka-rocnik.html', ['edit' => $edit]);
+	                     'r', 'hlavicka-rocnik.html', ['edit' => $edit], $event);
 
 	// Stránka soustředění
 	$this->hlavicka_test('SELECT s FROM MaMWeb\Entity\Soustredeni s WHERE s.pageid = :ID',
-	                     's', 'hlavicka-soustredeni.html', ['edit' => $edit]);
+	                     's', 'hlavicka-soustredeni.html', ['edit' => $edit], $event);
 
 	// Stránka řešení
 	$this->hlavicka_test('SELECT res FROM MaMWeb\Entity\Reseni res WHERE res.pageid = :ID',
-	                     'res', 'hlavicka-reseni.html', ['edit' => $edit]);
+	                     'res', 'hlavicka-reseni.html', ['edit' => $edit], $event);
+    }
+
+
+    /**
+     * Pokud $query vrátí výsledek, pak se otestuje ->je_verejny() a pripadne
+     * nastavi nulova prava.
+     */
+    private function verejne_test($query, & $event) {
+	$r = $this->emQuery($query);
+	if ($r) {
+	    $obj = $r[0];
+	    if (! $obj->je_verejny()) {
+		$event->result = AUTH_NONE;
+	    }
+	}
+    }
+
+    /**
+     * Generuj halvičky MaM entit pro aktuální stránku
+     */
+    public function mam_verejne(& $event, $param) {
+        $action = $event->data;
+
+	if (user_je_org()) {
+	    return;
+	}
+
+	// Uživatel není org - testy na veřejnost stránek
+
+	// Org stránka problému
+	$this->verejne_test('SELECT p FROM MaMWeb\Entity\Problem p WHERE p.pageid = :ID', $event);
+
+	// Veřejná stránka problému
+	$this->verejne_test('SELECT p FROM MaMWeb\Entity\Problem p WHERE p.verejne_pageid = :ID', $event);
+
+	// Stránka čísla
+	$this->verejne_test('SELECT c FROM MaMWeb\Entity\Cislo c WHERE c.pageid = :ID', $event);
+
+	// Stránka ročníku
+	$this->verejne_test('SELECT r FROM MaMWeb\Entity\Rocnik r WHERE r.pageid = :ID', $event);
+
+	// Stránka soustředění
+	$this->verejne_test('SELECT s FROM MaMWeb\Entity\Soustredeni s WHERE s.pageid = :ID', $event);
+
+	// Stránka řešení
+	$this->verejne_test('SELECT res FROM MaMWeb\Entity\Reseni res WHERE res.pageid = :ID', $event);
+    }
+
+
+    /**
+     * Register the eventhandlers
+     */
+    public function register(Doku_Event_Handler $controller) {
+        $controller->register_hook('TPL_ACT_RENDER', 'BEFORE', $this, 'mam_hlavicky', array ());
+        $controller->register_hook('AUTH_ACL_CHECK', 'AFTER', $this, 'mam_verejne', array ());
     }
 
 }

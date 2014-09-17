@@ -69,6 +69,13 @@ class Problem {
     }
 
     /**
+     * Je objekt (a jeho stránka) viditelný pro ne-orgy?
+     */
+    public function je_verejny() {
+        return ($this->get_stav() === 'verejny');
+    }
+
+    /**
      * link na stránku se zadáním / řešením
      *
      * @Column(type="string", nullable=true)

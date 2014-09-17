@@ -48,6 +48,13 @@ class Cislo {
     public function set_verejne($verejne) { $this->verejne = $verejne; }
 
     /**
+     * Je objekt (a jeho stránka) viditelný pro ne-orgy?
+     */
+    public function je_verejny() {
+        return $this->get_verejne();
+    }
+
+    /**
      * Stránka čísla na wiki
      *
      * @Column(type="string", nullable=false, unique=true)

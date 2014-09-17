@@ -65,6 +65,17 @@ class Rocnik {
         return $this->get_prvni_rok() . "/" . ($this->get_prvni_rok() + 1);
     }
 
+    /**
+     * Je objekt (a jeho stránka) viditelný pro ne-orgy?
+     */
+    public function je_verejny() {
+	$_verejne_c = function (& $x) { return $x->je_verejny(); };
+        return (
+	    $this->get_cisla()->filter($_verejne_c)->count() + 
+	    $this->get_soustredeni()->filter($_verejne_c)->count()
+	    > 0);
+    }
+
     public function __construct($rocnik, $pageid) {
 	$this->set_rocnik($rocnik);
 	$this->set_prvni_rok($rocnik + 1993);
