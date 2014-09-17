@@ -4,6 +4,19 @@ require_once 'doctrine-config.php';
 
 $em = getMaMEntityManager();
 
+/// !!!!!!!!!!!!!!!!!!!!!!!!!!!! delete database contents
+$em->getConnection()->query('DELETE FROM reseni');
+$em->getConnection()->query('DELETE FROM resitele');
+$em->getConnection()->query('DELETE FROM skoly');
+$em->getConnection()->query('DELETE FROM tagy');
+$em->getConnection()->query('DELETE FROM problemy');
+$em->getConnection()->query('DELETE FROM soustredeni');
+$em->getConnection()->query('DELETE FROM cisla');
+$em->getConnection()->query('DELETE FROM rocniky');
+
+
+$r18 = new MaMWeb\Entity\Rocnik(18, "p:r18:index");
+$em->persist($r18);
 $r19 = new MaMWeb\Entity\Rocnik(19, "p:r19:index");
 $em->persist($r19);
 $r20 = new MaMWeb\Entity\Rocnik(20, "p:r20:index");
@@ -12,10 +25,13 @@ $r21 = new MaMWeb\Entity\Rocnik(21, "p:r21:index");
 $em->persist($r21);
 
 $c201 = new MaMWeb\Entity\Cislo($r20, 1, "p:r20:c1:index");
+$c201->set_verejne(true);
 $em->persist($c201);
 $c202 = new MaMWeb\Entity\Cislo($r20, 2, "p:r20:c2:index");
+$c202->set_verejne(true);
 $em->persist($c202);
 $c211 = new MaMWeb\Entity\Cislo($r21, 1, "p:r21:c1:index");
+$c211->set_verejne(true);
 $em->persist($c211);
 
 $tM = new MaMWeb\Entity\Tag('M');
