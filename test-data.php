@@ -33,6 +33,8 @@ $em->persist($c202);
 $c211 = new MaMWeb\Entity\Cislo($r21, 1, "p:r21:c1:index");
 $c211->set_verejne(true);
 $em->persist($c211);
+$c218 = new MaMWeb\Entity\Cislo($r21, 8, "p:r21:c8:index");
+$em->persist($c218);
 
 $tM = new MaMWeb\Entity\Tag('M');
 $em->persist($tM);

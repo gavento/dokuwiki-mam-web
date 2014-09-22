@@ -99,9 +99,45 @@ class Cislo {
     private $resene_problemy;
     public function get_resene_problemy() { return $this->resene_problemy; }
 
+    /**
+     * Vrátí kód čísla (s ročníkem): 20.1
+     */
+    public function get_kod() {
+	return $this->get_rocnik()->get_rocnik() . "." . $this->get_cislo();
+    }
+
+    /**
+     * Vrátí názvem čísla s kódem
+     */
+    public function get_nazev() {
+	return "Číslo " . $this->get_kod();
+    }
+
+    public function get_viditelna_zadani_uloh($je_org) {
+        return $this->get_zadane_problemy()->filter(function ($p) {
+	  return ($je_org || $p->je_verejny()) && ($p->get_typ() == 'uloha'); });
+    }
+    public function get_viditelna_reseni_uloh($je_org) {
+        return $this->get_resene_problemy()->filter(function ($p) {
+	  return ($je_org || $p->je_verejny()) && ($p->get_typ() == 'uloha'); });
+    }
+    public function get_viditelne_ostatni($je_org) {
+        return $this->get_zadane_problemy()->filter(function ($p) {
+	  return ($je_org || $p->je_verejny()) && ($p->get_typ() != 'uloha') && ($p->get_typ() != 'tema'); });
+    }
+
+    public function default_pageid($rocnik, $cislo) {
+	$c = (int)($cislo);
+	assert ($c != 0);
+	return "p:r{$rocnik->get_rocnik()}:c{$c}:index";
+    }
+
     public function __construct($rocnik, $cislo, $pageid) {
 	$this->set_rocnik($rocnik);
 	$this->set_cislo($cislo);
+	if ($pageid === null) {
+	    $pageid = $this->default_pageid($rocnik, $cislo);
+	}
 	$this->set_pageid($pageid);
 	$this->set_verejne(false);
 	$this->zadane_problemy = new \Doctrine\Common\Collections\ArrayCollection();

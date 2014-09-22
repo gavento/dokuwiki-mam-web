@@ -12,6 +12,7 @@ class Rocnik {
      * @Id @Column(type="integer") @GeneratedValue
      **/
     private $id;
+    public function get_id() { return $this->id; }
 
     /**
      * Číslo ročníku 1..21..
@@ -76,9 +77,30 @@ class Rocnik {
 	    > 0);
     }
 
+    /**
+     * Vrátí název ročníku, volitelně s (ro/ky)
+     */
+    public function get_nazev($roky = false) {
+	return "Ročník " . $this->get_rocnik() . ($roky ? (" (" . $this->get_roky() . ")") : "");
+    }
+
+    public function get_viditelna_temata($je_org) {
+        return $this->get_zadane_problemy()->filter(function ($p) {
+	  return ($je_org || $p->je_verejny()) && ($p->get_typ() == 'tema'); });
+    }
+
+    public function default_pageid($rocnik) {
+	$r = (int)($rocnik);
+	assert ($r != 0);
+	return "p:r{$rocnik}:index";
+    }
+
     public function __construct($rocnik, $pageid) {
 	$this->set_rocnik($rocnik);
 	$this->set_prvni_rok($rocnik + 1993);
+	if ($pageid === null) {
+	    $pageid = $this->default_pageid($rocnik);
+	}
 	$this->set_pageid($pageid);
 	$this->cisla = new \Doctrine\Common\Collections\ArrayCollection();
 	$this->soustredeni = new \Doctrine\Common\Collections\ArrayCollection();

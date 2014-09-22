@@ -1,0 +1,21 @@
+.mam-hlavicka-popis {
+  font-weight: bold;
+  min-width: 8em;
+  display: inline-block;
+}
+
+.mam-hlavicka-data {
+  background: #fbf2ec;
+  padding: 8pt 0;
+  margin-bottom: 6pt;
+}
+
+.mam-hlavicka ul {
+  list-style-type: none;
+  margin-bottom: 4pt;
+}
+
+.mam-hlavicka li {
+  margin-left: 4pt;
+  color: inherit !important;
+}

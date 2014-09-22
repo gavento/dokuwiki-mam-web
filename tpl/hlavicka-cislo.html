@@ -1,9 +1,25 @@
 {% extends "hlavicka-base.html" %}
+{% import "makra.html" as m %}
+{% set r = c.get_rocnik() %}
 
 {% block nadpis %}
-Nadpis - TODO
+{{ c.get_nazev() }}
 {% endblock nadpis %}
 
 {% block data %}
-Data a podrobnosti - TODO
+<ul>
+  <li><span class='mam-hlavicka-popis'>Ročník:</span> {{ m.rocnik_pole(r, 'rocnik_id', edit) }}
+  <li><span class='mam-hlavicka-popis'>Vydáno:</span> {{ c.get_datum_vydani() |datum }}
+  <li><span class='mam-hlavicka-popis'>Termín řešení:</span> {{ c.get_datum_deadline() |datum }}
+  {% if je_org %}
+  <li><span class='mam-hlavicka-popis'>Veřejné:</span> {{ c.get_verejne() | dump }}
+  {% endif %}
+</ul>
 {% endblock data %}
+
+{% block obsah %}
+{{ makra.cislo_seznam_problemu('Zadání úloh', c.get_viditelna_zadani_uloh(je_org), je_org) }}
+{{ makra.cislo_seznam_problemu('Řešení úloh', c.get_viditelna_reseni_uloh(je_org), je_org) }}
+{{ makra.cislo_seznam_problemu('Témata pro ročník', c.get_viditelna_temata(je_org), je_org) }}
+{{ makra.cislo_seznam_problemu('Články a seriály', c.get_viditelne_ostatni(je_org), je_org) }}
+{% endblock obsah %}

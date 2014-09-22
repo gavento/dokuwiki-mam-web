@@ -1,9 +1,16 @@
 {% extends "hlavicka-base.html" %}
+{% import "makra.html" as makra %}
 
 {% block nadpis %}
-Nadpis - TODO
+{{ r.get_nazev(true) }}
 {% endblock nadpis %}
 
 {% block data %}
-Data a podrobnosti - TODO
+{{ makra.data_pole_text('První rok', r.get_prvni_rok(), 'prvni_rok', false) }}
 {% endblock data %}
+
+{% block obsah %}
+{{ makra.rocnik_seznam_cisel('Čísla a úlohy', r.get_viditelna_cisla(je_org), je_org) }}
+{{ makra.cislo_seznam_problemu('Témata pro ročník', r.get_viditelna_temata(je_org), je_org) }}
+{{ makra.rocnik_seznam_soustredeni('Soustředění', r.get_viditelna_soustredeni(je_org), je_org) }}
+{% endblock obsah %}

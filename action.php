@@ -1,7 +1,7 @@
 <?php
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author Tomas Gavenciak <gavento@ucw.cz>
+ * @author     Tomas Gavenciak <gavento@ucw.cz>
  */
 
 if (!defined('DOKU_INC')) die();
@@ -11,53 +11,18 @@ require_once(DOKU_INC.'inc/infoutils.php');
 /* composer library autoload */
 require_once(__DIR__.'/vendor/autoload.php');
 
-/**
- * Vrátí true když je daný uživatel (nebo přihlášený) ve skupině 'org'
- */
-function user_je_org($username = null) {
-    global $auth;
-    global $USERINFO;
-    if ($username === null) {
-	$username = $_SERVER['REMOTE_USER'];
-    }
-    $ud = $auth->getUserData($username);
-    return ($ud) && (in_array('org', $ud['grps']));
-}
 
 class action_plugin_mamweb extends DokuWiki_Action_Plugin {
  
-    var $helper = null;
+    var $h = null;
     var $twig = null;
+    var $em = null;
 
     public function __construct() {
-        $this->helper = plugin_load('helper', 'mamweb');
-	$this->twig = $this->helper->getTwigEnvironment();
-	$this->em = $this->helper->getEntityManager();
+        $this->h = plugin_load('helper', 'mamweb');
+	$this->twig = $this->h->getTwigEnvironment();
+	$this->em = $this->h->getEntityManager();
     }
-
-    /**
-     * Helper pro volani EntityManager#createQuery a provedeni dotazu
-     * Doplni do dotazu navic nekolik spolecnych promennych (ID, ...)
-     */
-    public function emQuery($query, $params = array()) {
-	global $ID;
-	$q = $this->em->createQuery($query);
-	$q->setParameters(array('ID' => $ID) + $params);
-	return $q->getResult();
-    }
-
-    /**
-     * Helper pro vykresleni dane sablony
-     * Proda navic nekolik promennych (ID, user_je_org, ...)
-     */
-    private function twigRender($tpl, $params=array()) {
-	$common = array(
-	    'je_org' => user_je_org(),
-	    'ID' => $ID,
-	);
-	return $this->twig->render($tpl, $common + $params);
-    }
-
 
     /**
      * Pokud $query vrátí výsledek, pak vypíše šablonu $tpl s výsledkem jakožto $param_name a
@@ -65,13 +30,13 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
      */
     private function hlavicka_test($query, $param_name, $tpl, $tpl_params = array(), & $event=null) {
         global $ID;
-	$r = $this->emQuery($query);
+	$r = $this->h->emQuery($query);
 	if ($r) {
 	    $obj = $r[0];
-	    ptln($this->twigRender($tpl, array($param_name => $obj) + $tpl_params));
+	    ptln($this->h->twigRender($tpl, array($param_name => $obj) + $tpl_params));
 	    // Pokud nemá stránka obsah, zobraz jen varování (a jen orgovi) či nic
 	    if ((! page_exists($ID)) && ($event !== null) && ($event->data == 'show')) {
-	        ptln($this->twigRender("prazdna-stranka-objektu.html"));
+	        ptln($this->h->twigRender("prazdna-stranka-objektu.html"));
 	        $event->preventDefault();
 	    }
 	}
@@ -87,14 +52,6 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
         if (! in_array($action, ['show', 'edit'])) {
 	    return;
 	}
-
-	// Pokud nemá user práva k editaci, tak se mu ukáže jen R/O info
-	/*
-	if (($action === 'edit') && (auth_quickaclcheck($ID) < AUTH_EDIT)) {
-	    $action = 'show';
-	}
-	$edit = ($action === 'edit');
-	*/
 
 	// Otestovat a zobrazit případné hlavičky
 
@@ -129,7 +86,7 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
      * nastavi nulova prava.
      */
     private function verejne_test($query, & $event) {
-	$r = $this->emQuery($query);
+	$r = $this->h->emQuery($query);
 	if ($r) {
 	    $obj = $r[0];
 	    if (! $obj->je_verejny()) {
@@ -144,7 +101,7 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
     public function mam_verejne(& $event, $param) {
         $action = $event->data;
 
-	if (user_je_org()) {
+	if ($this->h->jeOrg()) {
 	    return;
 	}
 
@@ -169,13 +126,69 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
 	$this->verejne_test('SELECT res FROM MaMWeb\Entity\Reseni res WHERE res.pageid = :ID', $event);
     }
 
-
     /**
+     * Ošetři vytvoření nového objektu
+     */
+    public function mam_novy_objekt(& $event, $param) {
+	global $ID;
+	global $INFO;
+
+	if ($event->data != 'mam-novy-objekt') return;
+
+	if (!$this->h->jeOrg()) {
+	    $event->data = 'show';
+	}
+	$event->stopPropagation();
+	$event->preventDefault();
+
+	$typ_entity = $_REQUEST['typ_entity'];
+
+	$entita = null;
+	switch ($typ_entity) {
+	    case 'rocnik':
+		$rocnik = (int)($_REQUEST['rocnik']);
+		$entita = new \MaMWeb\Entity\Rocnik($rocnik, null);
+		break;
+	    case 'cislo':
+		$rocnik_id = (int)($_REQUEST['rocnik_id']);
+		$rocnik = $this->em->find('\MaMWeb\Entity\Rocnik', $rocnik_id);
+		$cislo = (int)($_REQUEST['cislo']);
+		$entita = new \MaMWeb\Entity\Cislo($rocnik, $cislo, null);
+		break;
+	    case 'soustredeni':
+		$rocnik_id = (int)($_REQUEST['rocnik_id']);
+		$rocnik = $this->em->find('\MaMWeb\Entity\Rocnik', $rocnik_id);
+		$misto = $_REQUEST['misto'];
+		$entita = new \MaMWeb\Entity\Soustredeni($rocnik, $misto, null);
+		break;
+	    default:
+		msg('Špatné parametry akce "mam-novy-objekt".', -1);
+		$event->data = 'show';
+		return;
+	}
+
+	assert ($entita !== null);
+	try {
+	    $this->em->persist($entita);
+	    $this->em->flush();
+	} catch (\Doctrine\DBAL\DBALException $e) {
+	    msg('Chyba: ' . $e->GetMessage(), -1);
+	    $event->data = 'show';
+	    return;
+	}
+	$pageid = $entita->get_pageid();
+	header("HTTP/1.1 303 See Other");
+	header("Location: " . wl($pageid, array('do' => 'edit')));
+	return;
+    }
+
+     /**
      * Register the eventhandlers
      */
     public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('TPL_ACT_RENDER', 'BEFORE', $this, 'mam_hlavicky', array ());
         $controller->register_hook('AUTH_ACL_CHECK', 'AFTER', $this, 'mam_verejne', array ());
+        $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'mam_novy_objekt', array ());
     }
 
 }

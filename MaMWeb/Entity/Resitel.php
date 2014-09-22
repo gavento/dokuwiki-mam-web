@@ -121,7 +121,7 @@ class Resitel {
      * Kam zasílat papírové řešení
      *
      * @Column(type="string", nullable=false,
-               columnDefinition="VARCHAR(16) CHECK (zasilat IN ('domu', 'do_skoly', 'nikam'))")
+               columnDefinition="VARCHAR(16) NOT NULL CHECK (zasilat IN ('domu', 'do_skoly', 'nikam'))")
      **/
     private $zasilat;
     public function get_zasilat() { return $this->zasilat; }

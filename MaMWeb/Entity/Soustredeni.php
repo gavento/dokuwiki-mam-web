@@ -59,7 +59,7 @@ class Soustredeni {
     /**
      * Datum zacatku s presnosti na dny
      *
-     * @Column(type="date", nullable=false)
+     * @Column(type="date", nullable=true)
      */
     private $datum_zacatku;
     public function get_datum_zacatku() { return $this->datum_zacatku; }
@@ -68,7 +68,7 @@ class Soustredeni {
     /**
      * Datum konce s presnosti na dny
      *
-     * @Column(type="date", nullable=false)
+     * @Column(type="date", nullable=true)
      */
     private $datum_konce;
     public function get_datum_konce() { return $this->datum_konce; }
@@ -81,12 +81,18 @@ class Soustredeni {
         return true;
     }
 
-    public function __construct($pageid, $misto, $datum_zacatku, $datum_konce, $rocnik) {
-	$this->set_pageid($pageid);
-	$this->set_misto($misto);
-	$this->set_datum_zacatku($datum_zacatku);
-	$this->set_datum_konce($datum_konce);
+    public function default_pageid($rocnik, $misto) {
+	$n = \MaMWeb\Utils::toURL($misto);
+	return "sous:r{$rocnik->get_rocnik()}-{$n}:index";
+    }
+
+    public function __construct($rocnik, $misto, $pageid) {
 	$this->set_rocnik($rocnik);
+	$this->set_misto($misto);
+	if ($pageid === null) {
+	    $pageid = $this->default_pageid($rocnik, $misto);
+	}
+	$this->set_pageid($pageid);
     }
 }
 

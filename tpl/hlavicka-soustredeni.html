@@ -1,9 +1,20 @@
 {% extends "hlavicka-base.html" %}
+{% import "makra.html" as makra %}
+{% set r = s.get_rocnik() %}
 
 {% block nadpis %}
-Nadpis - TODO
+{{ s.get_misto() }}{% if s.get_nazev() %}: {{ s.get_nazev() }}{% endif %}
 {% endblock nadpis %}
 
 {% block data %}
-Data a podrobnosti - TODO
+<ul>
+{{ makra.data_pole_text('Místo', s.get_misto(), 'misto', false) }}
+{{ makra.data_pole_text('Nazev', s.get_nazev(), 'nazev', false) }}
+{{ makra.data_pole_rocnik('Ročník', r, 'rocnik_id', true) }}
+{{ makra.data_pole_datum('Začátek', s.get_datum_zacatku(), 'datum_zacatku', true) }}
+{{ makra.data_pole_datum('Konec', s.get_datum_konce(), 'datum_konce', true) }}
+</ul>
 {% endblock data %}
+
+{% block obsah %}
+{% endblock obsah %}

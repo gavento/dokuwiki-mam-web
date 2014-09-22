@@ -37,7 +37,7 @@ class Problem {
      * Typ: uloha/tema/...
      * 
      * @Column(type="string", nullable=false,
-               columnDefinition="VARCHAR(16) CHECK (typ IN ('uloha', 'tema', 'serial', 'org-clanek', 'res-clanek'))")
+               columnDefinition="VARCHAR(16) NOT NULL CHECK (typ IN ('uloha', 'tema', 'serial', 'org-clanek', 'res-clanek'))")
      **/
     private $typ;
     public function get_typ() { return $this->typ; }
@@ -59,7 +59,7 @@ class Problem {
      * Stav problému, viz popis tabulky
      *
      * @Column(type="string", nullable=false,
-               columnDefinition="VARCHAR(16) CHECK (stav IN ('navrh', 'verejny', 'smazany'))"))
+               columnDefinition="VARCHAR(16) NOT NULL CHECK (stav IN ('navrh', 'verejny', 'smazany'))"))
      **/
     private $stav;
     public function get_stav() { return $this->stav; }
@@ -184,6 +184,10 @@ class Problem {
 	return null;
     }
 
+    public function get_kod_a_nazev() { 
+	$k = $this->get_kod();
+	return "" . $k . ($k ? ": " : ""). $this->get_nazev();
+    }
 
     public $nazvy_typu = array(
 	'uloha' => 'Úloha',

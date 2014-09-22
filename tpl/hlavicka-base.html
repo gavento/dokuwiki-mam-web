@@ -1,7 +1,10 @@
-<div class='mam-hlavicka{% if edit %} mam-hlavicka-edit{% endif %}'>
+<div class='mam-hlavicka{% if edit %} mam-hlavicka-edit{% endif %} bootstrap'>
   <h1>{% block nadpis %}Nadpis{% endblock nadpis %}</h1>
-  <div class='mam-hlavicka-data'>
-  {% block data %} Data a podrobnosti {% endblock data %}
+  <div class='mam-hlavicka-data_ well'>
+    {% block data %} Data a podrobnosti {% endblock data %}
+  </div>
+  <div class='mam-hlavicka-obsah'>
+    {% block obsah %} Obsah {% endblock obsah %}
   </div>
 </div>
 

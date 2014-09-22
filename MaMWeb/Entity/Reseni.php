@@ -65,7 +65,7 @@ class Reseni {
      * Forma řešení (papir, email, upload)
      *
      * @Column(type="string", nullable=false,
-               columnDefinition="VARCHAR(16) CHECK (forma IN ('papir', 'email', 'upload'))")
+               columnDefinition="VARCHAR(16) NOT NULL CHECK (forma IN ('papir', 'email', 'upload'))")
      */
     private $forma;
     public function get_forma() { return $this->forma; }

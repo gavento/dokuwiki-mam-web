@@ -1,0 +1,11 @@
+<div class='bootstrap'>
+{% if je_org() %}
+<div class='mam-form'>
+{% block form %} Formuláře a tak {% endblock form %}
+</div>
+{% else %}
+<div class='warning'>
+Tento formulář je pouze pro členy skupiny org.
+</div>
+{% endif %}
+</div>
