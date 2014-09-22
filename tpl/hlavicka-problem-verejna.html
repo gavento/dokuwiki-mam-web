@@ -1,9 +1,17 @@
 {% extends "hlavicka-base.html" %}
+{% import "makra.html" as makra %}
 
 {% block nadpis %}
-Nadpis - TODO
+{{ p.get_nazev_typu() }}{% if p.get_kod() %} {{ p.get_kod() }}:{% endif %} {{ p.get_nazev() }}
 {% endblock nadpis %}
 
 {% block data %}
-Data a podrobnosti - TODO
+{{ makra.data_pole_cislo('Číslo zadání', p.get_cislo_zadani(), true) }}
+{{ makra.data_pole_cislo('Číslo řešení', p.get_cislo_reseni(), true) }}
+{{ makra.data_pole_link('Org stránka', p.get_pageid(), p.get_pageid(), false) |raw }}
+{% if p.get_typ() == 'uloha' %}{{ makra.data_pole_text('Maximum bodů', p.get_body(), true) }}{% endif %}
+{{ makra.data_pole_text('Tagy', 'TODO', true) }}
 {% endblock data %}
+
+{% block obsah %}
+{% endblock obsah %}

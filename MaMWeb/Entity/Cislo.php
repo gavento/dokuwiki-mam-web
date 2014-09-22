@@ -12,6 +12,7 @@ class Cislo {
      * @Id @Column(type="integer") @GeneratedValue
      **/
     private $id;
+    public function get_id() { return $this->id; }
 
     /**
      * Rocnik cisla

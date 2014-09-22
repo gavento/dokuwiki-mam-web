@@ -1,0 +1,10 @@
+{% extends "editform-base.html" %}
+{% import "makra.html" as makra %}
+
+{% block form %}
+{{ makra.form_pole_text('Místo', s.get_misto(), 'mam_misto') }}
+{{ makra.form_pole_text('Název / legenda / podtitul', s.get_nazev(), 'mam_nazev') }}
+{{ makra.form_pole_rocnik('Ročník', s.get_rocnik(), 'mam_rocnik_id') }}
+{{ makra.form_pole_datum('První den', s.get_datum_zacatku(), 'mam_datum_zacatku') }}
+{{ makra.form_pole_datum('Poslední den', s.get_datum_konce(), 'mam_datum_konce') }}
+{% endblock form %}

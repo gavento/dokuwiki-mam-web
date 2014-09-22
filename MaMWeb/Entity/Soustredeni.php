@@ -12,6 +12,7 @@ class Soustredeni {
      * @Id @Column(type="integer") @GeneratedValue
      **/
     private $id;
+    public function get_id() { return $this->id; }
 
     /**
      * Ročník, automaticky odvozený z datumů
@@ -84,6 +85,10 @@ class Soustredeni {
     public function default_pageid($rocnik, $misto) {
 	$n = \MaMWeb\Utils::toURL($misto);
 	return "sous:r{$rocnik->get_rocnik()}-{$n}:index";
+    }
+
+    public function get_misto_a_nazev() {
+	return $this->get_misto() . ($this->get_nazev() ? ": " . $this->get_nazev() : "");
     }
 
     public function __construct($rocnik, $misto, $pageid) {

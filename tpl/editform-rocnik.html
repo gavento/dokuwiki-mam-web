@@ -1,0 +1,6 @@
+{% extends "editform-base.html" %}
+{% import "makra.html" as makra %}
+
+{% block form %}
+{{ makra.form_pole_text('První rok', r.get_prvni_rok(), 'mam_prvni_rok') }}
+{% endblock form %}

@@ -1,4 +1,4 @@
-{% extends "form-org-base.html" %}
+{% extends "newform-base.html" %}
 {% import "makra.html" as m %}
 {% block form %}
 
@@ -7,7 +7,7 @@
 {{ m.NovyObjekt_form_start('rocnik') }}
   <div class='form-group'>
     <label for="rocnik">Číslo ročníku</label>
-    <input type="text" class="form-control" name="rocnik" placeholder="Číslo ročníku">
+    <input type="text" class="form-control" name="mam_rocnik" placeholder="Číslo ročníku">
   </div>
   <button type="submit" class="btn btn-primary">Vytvořit ročník</button>
 {{ m.NovyObjekt_form_end() }}
@@ -17,13 +17,13 @@
 {{ m.NovyObjekt_form_start('cislo') }}
   <div class='form-group'>
     <label for="rocnik">Ročník</label>
-    <select class="form-control" name="rocnik_id">
+    <select class="form-control" name="mam_rocnik_id">
       {{ m.rocniky_select_options() }}
     </select>
   </div>
   <div class='form-group'>
     <label for="cislo">Číslo (název) čísla</label>
-    <input type="text" class="form-control" name="cislo" placeholder="Číslo">
+    <input type="text" class="form-control" name="mam_cislo" placeholder="Číslo">
   </div>
   <button type="submit" class="btn btn-primary">Vytvořit číslo</button>
 {{ m.NovyObjekt_form_end() }}
@@ -33,13 +33,13 @@
 {{ m.NovyObjekt_form_start('soustredeni') }}
   <div class='form-group'>
     <label for="rocnik">Ročník</label>
-    <select class="form-control" name="rocnik_id">
+    <select class="form-control" name="mam_rocnik_id">
       {{ m.rocniky_select_options() }}
     </select>
   </div>
   <div class='form-group'>
     <label for="misto">Místo soustředění (s ročníkem též hlavní název soustředění)</label>
-    <input type="text" class="form-control" name="misto" placeholder="Místo">
+    <input type="text" class="form-control" name="mam_misto" placeholder="Místo">
   </div>
   <button type="submit" class="btn btn-primary">Vytvořit soustředění</button>
 </form></div>

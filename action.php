@@ -33,7 +33,7 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
 	$r = $this->h->emQuery($query);
 	if ($r) {
 	    $obj = $r[0];
-	    ptln($this->h->twigRender($tpl, array($param_name => $obj) + $tpl_params));
+	    ptln($this->h->twigRender($tpl, array($param_name => $obj, 'entita'=>$obj) + $tpl_params));
 	    // Pokud nemá stránka obsah, zobraz jen varování (a jen orgovi) či nic
 	    if ((! page_exists($ID)) && ($event !== null) && ($event->data == 'show')) {
 	        ptln($this->h->twigRender("prazdna-stranka-objektu.html"));
@@ -57,7 +57,7 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
 
 	// Org stránka problému
 	$this->hlavicka_test('SELECT p FROM MaMWeb\Entity\Problem p WHERE p.pageid = :ID',
-	                     'p', 'hlavicka-problem-org.html', ['edit' => $edit], $event);
+	                     'p', 'hlavicka-problem.html', ['edit' => $edit], $event);
 
 	// Veřejná stránka problému
 	$this->hlavicka_test('SELECT p FROM MaMWeb\Entity\Problem p WHERE p.verejne_pageid = :ID',
@@ -96,9 +96,9 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
     }
 
     /**
-     * Generuj halvičky MaM entit pro aktuální stránku
+     * Otestuj veřejnost stránky entity a uprav práva
      */
-    public function mam_verejne(& $event, $param) {
+    public function mam_acl_verejne(& $event, $param) {
         $action = $event->data;
 
 	if ($this->h->jeOrg()) {
@@ -126,6 +126,7 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
 	$this->verejne_test('SELECT res FROM MaMWeb\Entity\Reseni res WHERE res.pageid = :ID', $event);
     }
 
+
     /**
      * Ošetři vytvoření nového objektu
      */
@@ -141,25 +142,30 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
 	$event->stopPropagation();
 	$event->preventDefault();
 
-	$typ_entity = $_REQUEST['typ_entity'];
+	$typ_entity = $_REQUEST['mam_typ_entity'];
 
 	$entita = null;
 	switch ($typ_entity) {
 	    case 'rocnik':
-		$rocnik = (int)($_REQUEST['rocnik']);
+		$rocnik = (int)($_REQUEST['mam_rocnik']);
 		$entita = new \MaMWeb\Entity\Rocnik($rocnik, null);
 		break;
 	    case 'cislo':
-		$rocnik_id = (int)($_REQUEST['rocnik_id']);
+		$rocnik_id = (int)($_REQUEST['mam_rocnik_id']);
 		$rocnik = $this->em->find('\MaMWeb\Entity\Rocnik', $rocnik_id);
-		$cislo = (int)($_REQUEST['cislo']);
+		$cislo = (int)($_REQUEST['mam_cislo']);
 		$entita = new \MaMWeb\Entity\Cislo($rocnik, $cislo, null);
 		break;
 	    case 'soustredeni':
-		$rocnik_id = (int)($_REQUEST['rocnik_id']);
+		$rocnik_id = (int)($_REQUEST['mam_rocnik_id']);
 		$rocnik = $this->em->find('\MaMWeb\Entity\Rocnik', $rocnik_id);
-		$misto = $_REQUEST['misto'];
+		$misto = $_REQUEST['mam_misto'];
 		$entita = new \MaMWeb\Entity\Soustredeni($rocnik, $misto, null);
+		break;
+	    case 'problem':
+		$nazev = $_REQUEST['mam_nazev'];
+		$typ = $_REQUEST['mam_typ_problemu'];
+		$entita = new \MaMWeb\Entity\Problem($nazev, $typ, null);
 		break;
 	    default:
 		msg('Špatné parametry akce "mam-novy-objekt".', -1);
@@ -182,13 +188,53 @@ class action_plugin_mamweb extends DokuWiki_Action_Plugin {
 	return;
     }
 
+
+    /**
+     * Pokud $query vrátí výsledek, pak vypíše šablonu $tpl s výsledkem jakožto $param_name a
+     * dalšími parametry. Při nenalezení nedělá nic.
+     */
+    private function editform_test($query, $param_name, $tpl, & $form) {
+	$r = $this->h->emQuery($query);
+	if ($r) {
+	    $obj = $r[0];
+	    $el = $this->h->twigRender($tpl, array($param_name => $obj, 'entita' => $obj));
+	    $form->insertElement(1, $el);
+	}
+    }
+
+    /**
+     * Otestuje, zda se edituje stránka s metadaty a případně vloží další části formuláře
+     */
+    public function mam_extend_edit_form(& $event, $param) {
+	// Org stránka problému
+	$this->editform_test('SELECT p FROM MaMWeb\Entity\Problem p WHERE p.pageid = :ID',
+	                     'p', 'editform-problem.html', $event->data);
+
+	// Stránka čísla
+	$this->editform_test('SELECT c FROM MaMWeb\Entity\Cislo c WHERE c.pageid = :ID',
+	                     'c', 'editform-cislo.html', $event->data);
+
+	// Stránka ročníku
+	$this->editform_test('SELECT r FROM MaMWeb\Entity\Rocnik r WHERE r.pageid = :ID',
+	                     'r', 'editform-rocnik.html', $event->data);
+
+	// Stránka soustředění
+	$this->editform_test('SELECT s FROM MaMWeb\Entity\Soustredeni s WHERE s.pageid = :ID',
+	                     's', 'editform-soustredeni.html', $event->data);
+
+	// Stránka řešení
+	$this->editform_test('SELECT res FROM MaMWeb\Entity\Reseni res WHERE res.pageid = :ID',
+	                     'res', 'editform-reseni.html', $event->data);
+    }
+
      /**
      * Register the eventhandlers
      */
     public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('TPL_ACT_RENDER', 'BEFORE', $this, 'mam_hlavicky', array ());
-        $controller->register_hook('AUTH_ACL_CHECK', 'AFTER', $this, 'mam_verejne', array ());
+        $controller->register_hook('AUTH_ACL_CHECK', 'AFTER', $this, 'mam_acl_verejne', array ());
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'mam_novy_objekt', array ());
+        $controller->register_hook('HTML_EDITFORM_OUTPUT', 'BEFORE', $this, 'mam_extend_edit_form', array ());
     }
 
 }

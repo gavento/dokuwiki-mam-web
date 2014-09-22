@@ -23,6 +23,7 @@ class Problem {
      * @Id @Column(type="integer") @GeneratedValue
      **/
     private $id;
+    public function get_id() { return $this->id; }
 
     /**
      * název bez čísla, např 'Poissonova'
@@ -201,9 +202,17 @@ class Problem {
 	return $this->nazvy_typu[$this->get_typ()];
     }
 
+    public function default_pageid($nazev) {
+	$n = \MaMWeb\Utils::toURL($nazev);
+	return "org:p:{$n}:index";
+    }
+
     public function __construct($nazev, $typ, $pageid) {
 	$this->set_nazev($nazev);
 	$this->set_typ($typ);
+	if ($pageid === null) {
+	    $pageid = $this->default_pageid($nazev);
+	}
 	$this->set_pageid($pageid);
 	$this->set_stav('navrh');
 	$this->datum_vytvoreni = new \DateTime("now");

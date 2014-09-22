@@ -84,9 +84,25 @@ class Rocnik {
 	return "Ročník " . $this->get_rocnik() . ($roky ? (" (" . $this->get_roky() . ")") : "");
     }
 
+    /**
+     * Vrací pole problémů zadaných v některém čísle
+     */
+    public function get_zadane_problemy() {
+        $p = [];
+	foreach ($this->get_cisla() as $c) {
+	    $p = array_merge($p, $c->get_zadane_problemy()->toArray());
+	}
+	return $p;
+    }
+
     public function get_viditelna_temata($je_org) {
-        return $this->get_zadane_problemy()->filter(function ($p) {
+        return array_filter($this->get_zadane_problemy(), function ($p) {
 	  return ($je_org || $p->je_verejny()) && ($p->get_typ() == 'tema'); });
+    }
+
+    public function get_viditelna_cisla($je_org) {
+        return $this->get_cisla()->filter(function ($p) {
+	  return ($je_org || $p->je_verejny()); });
     }
 
     public function default_pageid($rocnik) {

@@ -10,7 +10,34 @@
 {% endblock data %}
 
 {% block obsah %}
-{{ makra.rocnik_seznam_cisel('Čísla a úlohy', r.get_viditelna_cisla(je_org), je_org) }}
-{{ makra.cislo_seznam_problemu('Témata pro ročník', r.get_viditelna_temata(je_org), je_org) }}
-{{ makra.rocnik_seznam_soustredeni('Soustředění', r.get_viditelna_soustredeni(je_org), je_org) }}
+{% set cisla = r.get_viditelna_cisla(je_org()) %}
+{% if cisla|length > 0 %}
+  <h2>Čísla a úlohy</h2>
+  <ul>
+  {% for c in cisla %}
+    <li>{{ makra.cislo_a_ulohy(c) }}
+  {% endfor %}
+  </ul>
+{% endif %}
+
+{% set temata = r.get_viditelna_temata(je_org()) %}
+{% if temata|length > 0 %}
+  <h2>Témata</h2>
+  <ul>
+  {% for t in temata %}
+    <li>{{ wikilink(t.get_pageid(), t.get_kod_a_nazev()) }}
+  {% endfor %}
+  </ul>
+{% endif %}
+
+{% set sous = r.get_soustredeni() %}
+{% if sous|length > 0 %}
+  <h2>Soustředění</h2>
+  <ul>
+  {% for s in sous %}
+    <li>{{ wikilink(s.get_pageid(), s.get_misto_a_nazev()) }} ({{s.get_datum_zacatku()|datum}} - {{s.get_datum_konce()|datum}})
+  {% endfor %}
+  </ul>
+{% endif %}
+
 {% endblock obsah %}

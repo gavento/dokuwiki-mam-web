@@ -1,0 +1,17 @@
+{% extends "editform-base.html" %}
+{% import "makra.html" as makra %}
+
+{% block form %}
+{{ makra.form_pole_text('Název', p.get_nazev(), 'mam_nazev') }}
+{{ makra.form_pole_typ_problemu('Typ problému', p.get_typ(), 'mam_typ_problemu') }}
+{{ makra.form_pole_stav_problemu('Stav problému', p.get_stav(), 'mam_stav_problemu') }}
+{{ makra.form_pole_text('Veřejný (true či 1 / false či 0)', p.je_verejny()|dump, 'mam_verejny') }}
+{{ makra.form_pole_text('Pageid veřejné stránky (oddělovač ":")', p.get_verejne_pageid(), 'mam_verejne_pageid') }}
+{{ makra.form_pole_text('Zadavatel', p.get_zadavatel(), 'mam_zadavatel') }}
+{{ makra.form_pole_text('Opravovatel', p.get_opravovatel(), 'mam_opravovatel') }}
+{{ makra.form_pole_text('Kód problému', p.get_kod(), 'mam_kod_problemu') }}
+{{ makra.form_pole_text('Maximum bodů (u úlohy)', p.get_body(), 'mam_body') }}
+{{ makra.form_pole_cislo('Číslo zadání', p.get_cislo_zadani(), 'mam_cislo_zadani_id') }}
+{{ makra.form_pole_cislo('Číslo řešení (u úlohy)', p.get_cislo_reseni(), 'mam_cislo_reseni_id') }}
+{{ makra.form_pole_text('Tagy (oddělené čárkami)', 'TODO', 'mam_tagy') }}
+{% endblock form %}

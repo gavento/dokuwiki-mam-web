@@ -1,0 +1,22 @@
+{% extends "hlavicka-base.html" %}
+{% import "makra.html" as makra %}
+
+{% block nadpis %}
+{{ p.get_nazev_typu() }}{% if p.get_kod() %} {{ p.get_kod() }}:{% endif %} {{ p.get_nazev() }}
+{% endblock nadpis %}
+
+{% block data %}
+{{ makra.data_pole_text('Typ problému', p.get_typ(), false) }}
+{{ makra.data_pole_text('Stav problému', p.get_stav(), false) }}
+{{ makra.data_pole_cislo('Číslo zadání', p.get_cislo_zadani(), true) }}
+{{ makra.data_pole_cislo('Číslo řešení', p.get_cislo_reseni(), true) }}
+{{ makra.data_pole_link('Veřejná stránka', p.get_verejne_pageid(), p.get_verejne_pageid(), false) |raw }}
+{{ makra.data_pole_text('Zadavatel', p.get_zadavatel(), false) }}
+{{ makra.data_pole_text('Opravovatel', p.get_opravovatel(), false) }}
+{{ makra.data_pole_text('Kód problému', p.get_kod(), false) }}
+{{ makra.data_pole_text('Maximum bodů', p.get_body(), true) }}
+{{ makra.data_pole_text('Tagy', 'TODO', true) }}
+{% endblock data %}
+
+{% block obsah %}
+{% endblock obsah %}

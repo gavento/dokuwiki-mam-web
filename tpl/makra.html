@@ -1,6 +1,164 @@
+{######## Části formulářů ################################################################################}
+
+
+{######## prvek formuláře pro text #}
+
+{% macro form_pole_text(label, hodnota, form_nazev) %}
+  <div class='form-group'>
+    <label>{{ label }}</label>
+    <input class='form-control' type='text' name='{{ form_nazev }}' value='{{ hodnota }}'>
+  </div>
+{% endmacro %}
+
+
+{######## prvek formuláře pro datum #}
+
+{% macro form_pole_datum(label, hodnota, form_nazev) %}
+  <div class='form-group'>
+    <label>{{ label }}</label>
+    <input class='form-control' type='date' name='{{ form_nazev }}' value='{% if hodnota %}{{ hodnota.format('Y-m-d') }}{% endif %}'>
+  </div>
+{% endmacro %}
+
+
+{######## Seznam <option> pro select rocniku #}
+
+{% macro rocniky_select_options(sel) %}
+  {% for r in get_helper().emQuery("SELECT r FROM MaMWeb\\Entity\\Rocnik r") %}
+    <option value='{{ r.get_id() }}' {% if sel == r %}selected="selected"{% endif %}>{{ r.get_nazev(true) }}</option>
+  {% endfor %}
+{% endmacro %}
+
+
+{######## prvek formuláře pro ročník #}
+
+{% macro form_pole_rocnik(label, rocnik, form_nazev) %}
+  {% import _self as makra %}
+  <div class='form-group'>
+    <label>{{ label }}</label>
+    <select class='form-control' name='{{ form_nazev }}'>
+    {{ makra.rocniky_select_options(rocnik) }}
+    </select>
+  </div>
+{% endmacro %}
+
+
+{######## Seznam <option> pro select cisel #}
+
+{% macro cisla_select_options(sel) %}
+  {% for c in get_helper().emQuery("SELECT c FROM MaMWeb\\Entity\\Cislo c") %}
+    <option value='{{ c.get_id() }}' {% if sel == c %}selected="selected"{% endif %}>{{ c.get_kod() }}</option>
+  {% endfor %}
+{% endmacro %}
+
+
+{######## prvek formuláře pro číslo #}
+
+{% macro form_pole_cislo(label, cislo, form_nazev) %}
+  {% import _self as makra %}
+  <div class='form-group'>
+    <label>{{ label }}</label>
+    <select class='form-control' name='{{ form_nazev }}'>
+    {{ makra.cisla_select_options(cislo) }}
+    </select>
+  </div>
+{% endmacro %}
+
+
+{######## prvek formuláře pro typ problému #}
+
+{% macro form_pole_typ_problemu(label, hodnota, form_nazev) %}
+  <div class='form-group'>
+    <label>{{ label }}</label>
+    <select class='form-control' name='{{ form_nazev }}'>
+      <option value='uloha' {% if hodnota == 'uloha' %} selected="selected"{% endif %}>Úloha</option>
+      <option value='tema' {% if hodnota == 'tema' %} selected="selected"{% endif %}>Téma</option>
+      <option value='serial' {% if hodnota == 'serial' %} selected="selected"{% endif %}>Seriál</option>
+      <option value='org-clanek' {% if hodnota == 'org-clanek' %} selected="selected"{% endif %}>Článek (org)</option>
+      <option value='res-clanek' {% if hodnota == 'res-clanek' %} selected="selected"{% endif %}>Článek (účastník)</option>
+    </select>
+  </div>
+{% endmacro %}
+
+
+{######## prvek formuláře pro stav problému #}
+
+{% macro form_pole_stav_problemu(label, hodnota, form_nazev) %}
+  <div class='form-group'>
+    <label>{{ label }}</label>
+    <select class='form-control' name='{{ form_nazev }}'>
+      <option value='navrh' {% if hodnota == 'navrh' %} selected="selected"{% endif %}>Návrh</option>
+      <option value='verejny' {% if hodnota == 'verejny' %} selected="selected"{% endif %}>Veřejný</option>
+      <option value='smazany' {% if hodnota == 'smazany' %} selected="selected"{% endif %}>Smazaný</option>
+    </select>
+  </div>
+{% endmacro %}
+
+
+{######## Obal formularu pro vytvareni novych objektu #}
+
+{% macro NovyObjekt_form_start(typ_entity) %}
+  <div class='well'><form role='form' action={{ NovyObjekt_wikilink() }} method='post'>
+    <input type='hidden' name="mam_typ_entity" value="{{ typ_entity }}">
+{% endmacro %}
+{% macro NovyObjekt_form_end() %}
+  </form></div>
+{% endmacro %}
+
+
+
+{######## Části bloku dat ################################################################################}
+
+{% macro data_pole_text(label, text, verejne) %}
+  {% if je_org() or (verejne and text) %}
+    <li><span class='mam-hlavicka-popis'>{{ label }}</span> {{ text }}</li>
+  {% endif %}
+{% endmacro %}
+
+{% macro data_pole_link(label, pageid, text, verejne) %}
+  {% if je_org() or (verejne and text) %}
+    <li><span class='mam-hlavicka-popis'>{{ label }}</span> {{ wikilink(pageid, text) }}</li>
+  {% endif %}
+{% endmacro %}
+
+{% macro data_pole_datum(label, datum, verejne) %}
+  {% if je_org() or (verejne and datum) %}
+    <li><span class='mam-hlavicka-popis'>{{ label }}</span> {{datum|datum }}</li>
+  {% endif %}
+{% endmacro %}
+
+{% macro data_pole_rocnik(label, rocnik, verejne) %}
+  {% if je_org() or (verejne and rocnik) %}
+    <li><span class='mam-hlavicka-popis'>{{ label }}</span> {{ wikilink(rocnik.get_pageid(), rocnik.get_nazev()) }}</li>
+  {% endif %}
+{% endmacro %}
+
+{% macro data_pole_cislo(label, cislo, verejne) %}
+  {% if je_org() or (verejne and cislo) %}
+    <li><span class='mam-hlavicka-popis'>{{ label }}</span> {% if cislo %}{{ wikilink(cislo.get_pageid(), cislo.get_nazev()) }}{% endif %}</li>
+  {% endif %}
+{% endmacro %}
+
+
+
+
+
+
+
+
+{######## Číslo spolu se zadanými úlohami #}
+
+{% macro cislo_a_ulohy(c) %}
+  {{ wikilink(c.get_pageid(), c.get_nazev()) }}
+  {% set zadani = c.get_viditelna_zadani_uloh(je_org()) %}
+  {% if zadani|length > 0 %}
+    ({% for z in zadani %}{{ wikilink(z.get_pageid(), z.get_kod()) }} {% endfor %})
+  {% endif %}
+{% endmacro %}
+
 
 {% macro cislo_seznam_problemu (nazev, seznam, je_org) %}
-{% if seznam.count() > 0 %}
+{% if seznam|length > 0 %}
   <h3>{{ nazev }}</h3>
   {% for p in seznam %}
     <li>{{ wikilink(p.get_verejne_pageid(), p.get_kod_a_nazev()) }}
@@ -22,94 +180,6 @@
     {% endif %}
   {% endfor %}
 {% endif %}
-{% endmacro %}
-
-
-
-
-
-{######## prvek bloku data pro text #}
-
-{% macro data_pole_text(nazev, hodnota, form_nazev, verejny) %}
-  {% if je_org() or (verejny and rocnik) %}
-    {% if get_ACT() == 'edit' %}
-      <div class='form-group'>
-	<label>{{ nazev }}</label>
-	<input class='form-control' type='text' name='{{ form_nazev }}' value='{{ hodnota }}'>
-      </div>
-    {% else %}
-      <li><span class='mam-hlavicka-popis'>{{ nazev }} </span>
-      {{ hodnota }}
-    {% endif %}
-  {% endif %}
-{% endmacro %}
-
-
-{######## prvek bloku data pro datum #}
-
-{% macro data_pole_datum(nazev, hodnota, form_nazev, verejny) %}
-  {% if je_org() or (verejny and hodnota) %}
-    {% if get_ACT() == 'edit' %}
-      <div class='form-group'>
-	<label>{{ nazev }}</label>
-	<input class='form-control' type='date' name='{{ form_nazev }}' value='{{ hodnota }}'>
-      </div>
-    {% else %}
-      <li><span class='mam-hlavicka-popis'>{{ nazev }} </span>
-      {{ hodnota|datum }}
-    {% endif %}
-  {% endif %}
-{% endmacro %}
-
-
-{######## Seznam <option> pro select rocniku #}
-
-{% macro rocniky_select_options(sel) %}
-  {% for r in get_helper().emQuery("SELECT r FROM MaMWeb\\Entity\\Rocnik r") %}
-    <option value='{{ r.get_id() }}' {% if sel == r %}selected="selected"{% endif %}>{{ r.get_nazev(true) }}</option>
-  {% endfor %}
-{% endmacro %}
-
-
-{######## prvek bloku data pro ročník #}
-
-{% macro data_pole_rocnik(nazev, rocnik, form_nazev, verejny) %}
-  {% import _self as makra %}
-  {% if je_org() or (verejny and rocnik) %}
-    {% if get_ACT() == 'edit' %}
-      <div class='form-group'>
-	<label>{{ nazev }}</label>
-	<select class='form-control' name='{{ form_nazev }}'>
-	{{ makra.rocniky_select_options(rocnik) }}
-	</select>
-      </div>
-    {% else %}
-      <li><span class='mam-hlavicka-popis'>{{ nazev }} </span>
-      {{ wikilink(rocnik.get_pageid(), rocnik.get_nazev(true)) }}
-    {% endif %}
-  {% endif %}
-{% endmacro %}
-
-
-
-{######## Seznam <option> pro select cisel #}
-
-{% macro cisla_select_options(sel) %}
-  {% for c in get_helper().emQuery("SELECT c FROM MaMWeb\\Entity\\Cislo c") %}
-    <option value='{{ c.get_id() }}' {% if sel == c %}selected="selected"{% endif %}>{{ c.get_kod() }}</option>
-  {% endfor %}
-{% endmacro %}
-
-
-{######## Obal formularu pro vytvareni novych objektu #}
-
-{% macro NovyObjekt_form_start(typ_entity) %}
-  <div class='well'><form role='form' action={{ NovyObjekt_wikilink() }} method='post'>
-    <input type='hidden' name="typ_entity" value="{{ typ_entity }}">
-{% endmacro %}
-
-{% macro NovyObjekt_form_end() %}
-  </form></div>
 {% endmacro %}
 
 

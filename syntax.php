@@ -71,8 +71,11 @@ class syntax_plugin_mamweb extends DokuWiki_Syntax_Plugin {
 	$options = $data[1];
 
 	switch ($typ) {
-	    case 'NovyObjekt':
-		$renderer->doc .= $this->h->twigRender("form-novy-objekt.html");
+	    case 'NovaEntita':
+		$renderer->doc .= $this->h->twigRender("newform-entita.html");
+		break;
+	    case 'NovyProblem':
+		$renderer->doc .= $this->h->twigRender("newform-problem.html");
 		break;
 	    case 'StavDB':
 		$renderer->doc .= $this->h->twigRender("stav-db.html");

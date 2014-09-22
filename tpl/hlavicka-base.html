@@ -1,10 +1,17 @@
-<div class='mam-hlavicka{% if edit %} mam-hlavicka-edit{% endif %} bootstrap'>
+{% import "makra.html" as makra %}
+<div class='mam-hlavicka bootstrap'>
   <h1>{% block nadpis %}Nadpis{% endblock nadpis %}</h1>
-  <div class='mam-hlavicka-data_ well'>
-    {% block data %} Data a podrobnosti {% endblock data %}
-  </div>
-  <div class='mam-hlavicka-obsah'>
-    {% block obsah %} Obsah {% endblock obsah %}
-  </div>
+  {% if get_ACT() != 'edit' %}
+    <div class='mam-hlavicka-data_ well'>
+      <ul>
+	{% block data %}
+	{% endblock data %}
+	{{ makra.data_pole_text('Veřejné', entita.je_verejny() |dump, false) }}
+      </ul>
+    </div>
+    <div class='mam-hlavicka-obsah'>
+      {% block obsah %} Obsah {% endblock obsah %}
+    </div>
+  {% endif %}
 </div>
 

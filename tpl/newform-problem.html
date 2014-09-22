@@ -1,0 +1,16 @@
+{% extends "newform-base.html" %}
+{% import "makra.html" as makra %}
+{% block form %}
+
+<h3>Nový problém</h3>
+
+{{ makra.NovyObjekt_form_start('problem') }}
+  <div class='form-group'>
+    <label for="mam_nazev">Název problému (tématu, úlohy, seriálu, ...)</label>
+    <input type="text" class="form-control" name="mam_nazev" placeholder="Název">
+  </div>
+  {{ makra.form_pole_cislo('Typ (lze ho později změnit)', '', 'mam_typ_problemu') }}
+  <button type="submit" class="btn btn-primary">Vytvořit problém</button>
+{{ makra.NovyObjekt_form_end() }}
+
+{% endblock form %}

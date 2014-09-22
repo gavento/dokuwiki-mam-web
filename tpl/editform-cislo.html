@@ -1,0 +1,10 @@
+{% extends "editform-base.html" %}
+{% import "makra.html" as makra %}
+
+{% block form %}
+{{ makra.form_pole_rocnik('Ročník', c.get_rocnik(), 'mam_rocnik_id') }}
+{{ makra.form_pole_text('Číslo', c.get_cislo(), 'mam_cislo') }}
+{{ makra.form_pole_text('Veřejné (true či 1 / false či 0)', c.get_verejny()|dump, 'mam_verejny') }}
+{{ makra.form_pole_datum('Datum vydání', c.get_datum_vydani(), 'mam_datum_vydani') }}
+{{ makra.form_pole_datum('Datum odeslání řešení', c.get_datum_deadline(), 'mam_datum_deadline') }}
+{% endblock form %}

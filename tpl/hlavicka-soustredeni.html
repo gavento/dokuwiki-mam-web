@@ -7,13 +7,11 @@
 {% endblock nadpis %}
 
 {% block data %}
-<ul>
-{{ makra.data_pole_text('Místo', s.get_misto(), 'misto', false) }}
-{{ makra.data_pole_text('Nazev', s.get_nazev(), 'nazev', false) }}
+{{ makra.data_pole_text('Místo', s.get_misto(), false) }}
+{{ makra.data_pole_text('Nazev', s.get_nazev(), false) }}
 {{ makra.data_pole_rocnik('Ročník', r, 'rocnik_id', true) }}
-{{ makra.data_pole_datum('Začátek', s.get_datum_zacatku(), 'datum_zacatku', true) }}
-{{ makra.data_pole_datum('Konec', s.get_datum_konce(), 'datum_konce', true) }}
-</ul>
+{{ makra.data_pole_datum('Začátek', s.get_datum_zacatku(), true) }}
+{{ makra.data_pole_datum('Konec', s.get_datum_konce(), true) }}
 {% endblock data %}
 
 {% block obsah %}
